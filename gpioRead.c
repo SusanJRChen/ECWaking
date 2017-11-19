@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-//#include <ugpio/ugpio.h>
+#include <ugpio/ugpio.h>
 
 struct Button {
 	int pin;
