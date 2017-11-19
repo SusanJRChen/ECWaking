@@ -12,7 +12,9 @@ struct Button {
 	int pin;
 	int request;
 	int receive;
-	int value;
+	
+	int prev_val;
+	int cur_val;
 
 	bool pressed;	
 };
@@ -64,28 +66,45 @@ int main (int argc, char ** argv, char ** envp)
 	bool run = true;
 	
 	while(run){
-		button1.value = gpio_get_value(button1.pin);
-		button2.value = gpio_get_value(button2.pin);
-		button3.value = gpio_get_value(button3.pin);
-		button4.value = gpio_get_value(button4.pin);
-		button5.value = gpio_get_value(button5.pin);
+		button1.cur_val = gpio_get_value(button1.pin);
+		button2.cur_val = gpio_get_value(button2.pin);
+		button3.cur_val = gpio_get_value(button3.pin);
+		button4.cur_val = gpio_get_value(button4.pin);
+		button5.cur_val = gpio_get_value(button5.pin);
 		
-		if (button1.value){
+		if(!button1.prev_val && button1.cur_val)
+			button1.pressed = true;
+		if(!button2.prev_val && button2.cur_val)
+			button2.pressed = true;
+		if(!button3.prev_val && button3.cur_val)
+			button3.pressed = true;
+		if(!button4.prev_val && button4.cur_val)
+			button4.pressed = true;
+		if(!button5.prev_val && button5.cur_val)
+			button5.pressed = true;
+		
+		if (button1.pressed){
 			printf("button 1 is pressed\n");
 		}
-		if (button2.value){
+		if (button2.pressed){
 			printf("button 2 is pressed\n");
 		}
-		if (button3.value){
+		if (button3.pressed){
 			printf("button 3 is pressed\n");
 		}
-		if (button4.value){
+		if (button4.pressed){
 			printf("button 4 is pressed\n");
 		}
-		if (button5.value){
+		if (button5.pressed){
 			printf("button 5 is pressed\n");
 		}
-	
+		
+		
+		button1.prev_val = button1.cur_val;
+		button2.prev_val = button2.cur_val;
+		button3.prev_val = button3.cur_val;
+		button4.prev_val = button4.cur_val;
+		button5.prev_val = button5.cur_val;	
 	}
 	
 }
