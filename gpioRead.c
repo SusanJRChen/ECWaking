@@ -3,23 +3,30 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdbool.h>
 
 #include <ugpio/ugpio.h>
+#include <onion-i2c.h>
 
 struct Button {
 	int pin;
 	int request;
 	int receive;
-	int value;	
+	int value;
+
+	bool pressed;	
 };
 
 int main (int argc, char ** argv, char ** envp)
 {	
-	Button button1;
-	Button button2;
-	Button button3;
-	Button button4;
-	Button button5;
+	struct Button button1 = {0};
+	struct Button button2 = {0};
+	struct Button button3 = {0};
+	struct Button button4 = {0};
+	struct Button button5 = {0};
+
+	button1.pin = 1;
+	button2.pin = 2;
 	
 	button1.request = gpio_is_requested(button1.pin);
 	button2.request = gpio_is_requested(button2.pin);
@@ -41,7 +48,7 @@ int main (int argc, char ** argv, char ** envp)
 	
 	if (!(button1.request || button2.request || button3.request || button4.request || button5.request))
 	{
-		if (button1.receive < 0 || button2.receive < 0 || button3.receive < 0 || button4.receive < 0 || button5.receive < 0))
+		if (button1.receive < 0 || button2.receive < 0 || button3.receive < 0 || button4.receive < 0 || button5.receive < 0)
 		{
 			perror("gpio_request");
 			return EXIT_FAILURE;
