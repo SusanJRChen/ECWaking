@@ -1,4 +1,4 @@
-# smart alarm clock using Onion's Omega2
+# Smart Alarm Clock using Onion's Omega2
 Please dont fail us
 
 ## Purpose
