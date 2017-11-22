@@ -36,7 +36,7 @@ which stores the woeid in content.txt
 
 Using the woeid, we can get information on the location’s weather with:
 
-echo $(curl query.yahooapis.com/v1/public/yql -d q="select wind from weather.forecast where woeid= [WOEID]" -d format=json) > $content.txt
+echo $(curl query.yahooapis.com/v1/public/yql -d q="select units,items.forecast from weather.forecast where woeid= [WOEID]" -d format=json) > $content.txt
 
 This stores the information in content.txt
 
