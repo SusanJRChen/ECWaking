@@ -1,0 +1,1 @@
+{"ip":"69.17.129.214","country_code":"CA","country_name":"Canada","region_code":"ON","region_name":"Ontario","city":"Waterloo","zip_code":"N2J","time_zone":"America/Toronto","latitude":43.504,"longitude":-80.5366,"metro_code":0}

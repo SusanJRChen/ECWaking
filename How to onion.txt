@@ -1,0 +1,11 @@
+How to:
+
+run:
+sh xCompile.sh -buildroot ~/source/ -lib "upgio -lonioni2c"
+
+upload gpioRead into Editor for Onion Omega
+ssh into Omega
+
+run:
+chmod +x /gpioRead
+/gpioRead
