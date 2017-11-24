@@ -5,47 +5,6 @@
 #include <string.h>
 #include <math.h>
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <netinet/in.h>
-#include <net/if.h>
-#include <arpa/inet.h>
-
-/*
-Woooooo it’s a ghost
-Spooky
-fuck your ghost
-
-How to curl:
-
-Other things to note:
-You can view content of variable content with:
-echo $content
-You can view content of file content.txt with:
-cat /content.txt
-
-From the onion omega, run:
-
-To get longitude and latitude from IP address, run:
-
-curl freegeoip.net/json/[IPADDRESS] > coordinates.txt
-
-Parse through coordinates.txt to get longitude and latitude
-
-Given any longitude and latitude, we can get the woeid(specifies where the place is) with:
-
-curl query.yahooapis.com/v1/public/yql -d q="select woeid from geo.places where text=\"([LONGITUDE],[LATITUDE])\"" -d format=json > woeid.txt
-
-which stores the woeid in weather.txt
-
-Using the woeid, we can get information on the location’s weather with:
-
-curl query.yahooapis.com/v1/public/yql -d q="select units,items.forecast from weather.forecast where woeid=[WOEID]" -d format=json > weather.txt
-
-This stores the information in weather.txt
-*/
-
 bool isNum (char in){
 	if (in >= '0' && in <= '9')
 		return true;
@@ -59,6 +18,10 @@ bool checkChar(char in){
 		return true;
 	else
 		return false;
+}
+
+float FahtoCel (float value){
+	return (value - 32) * 1.8;
 }
 
 bool stringToFloat(const char input[], float *value) {
@@ -209,6 +172,15 @@ char * substring(char * string, int position, int length){
     return pointer;
 }
 
+bool getIP(char ** ipaddress){
+	FILE *fp = popen("curl ipinfo.io/ip", "r");
+
+	fscanf(fp, "%s", *ipaddress);
+	pclose(fp);
+	
+	return true;
+}
+
 bool getLongandLat(char * buff, char ** latitude, char ** longitude){
     char * result= strstr(buff, "latitude\":");
     int LatitudeIndex = result - buff + 11;
@@ -266,35 +238,44 @@ bool getLineWithString(char * filename, char * string, char * buff){
 	return false;
 }
 
-float FahtoCel (float value){
-	return (value - 32) * 1.8;
-}
-
-int main(int argc, char** argv)
-{
-    char * IP;
-    FILE * content;
-    char buff[255];
+int main(){	
+    char * ipaddress = (char *) malloc(20);
+	char command[256];
+	char buff[256];
 	
-	char * woeid;
-	char * longitude;
-	char * latitude;
-	char * high;
-	char * low;
-	char * temperatureUnits;
+	char * woeid = (char *) malloc(15);
+	char * longitude = (char *) malloc(8);
+	char * latitude = (char *) malloc(8);
+	char * high = (char *) malloc(5);
+	char * low = (char *) malloc(5);
+	char * temperatureUnits = (char *) malloc(1);
     
-    IP = "129.97.124.0";
+	system("curl ipinfo.io/ip > content.txt");
 	
-	if (getLineWithString("coordinates.txt", "longitude", buff))
-		getLongandLat(buff, &latitude, &longitude);
+	if (getLineWithString("content.txt", ".", buff)){
+		strcpy(ipaddress, buff);
+	}
 	
-	if (getLineWithString("woeid.txt", "woeid", buff))
+	snprintf(command, sizeof command, "%s%s%s", "curl freegeoip.net/json/", ipaddress, " > content.txt");
+	system(command);
+	
+	if (getLineWithString("content.txt", "longitude", buff))
+		getLongandLat(buff, &longitude, &latitude);	
+	
+	snprintf(command, sizeof command, "%s%s%s%s%s", "curl query.yahooapis.com/v1/public/yql -d q=\"select woeid from geo.places where text=\\\"(", longitude, ", " , latitude, ")\\\"\" -d format=json > content.txt");
+	system(command);
+		
+	if (getLineWithString("content.txt", "woeid", buff))
 		getWoeid(buff, &woeid);	
 	
-	if (getLineWithString("weather.txt", "high", buff))
-		getTemperature(buff, &high, &low);
 	
-	if (getLineWithString("weather.txt", "temperature", buff))
+	snprintf(command, sizeof command, "%s%s%s", "curl query.yahooapis.com/v1/public/yql -d q=\"select * from weather.forecast where woeid=\\\"", woeid, "\\\"\" -d format=json > content.txt");
+	system(command);
+	
+	if (getLineWithString("content.txt", "high", buff))
+		getTemperature(buff, &high, &low);	
+	
+	if (getLineWithString("content.txt", "temperature", buff))
 		getUnits(buff, &temperatureUnits);
 	
 	float highfloat = 0;
@@ -303,17 +284,54 @@ int main(int argc, char** argv)
 	stringToFloat(high, &highfloat);
 	stringToFloat(low, &lowfloat);	
 	
-	highfloat = FahtoCel(highfloat);
-	lowfloat = FahtoCel(lowfloat);
-	float averageTemperature = (highfloat + lowfloat)/2;
+	if (temperatureUnits == "F"){
+		highfloat = FahtoCel(highfloat);
+		lowfloat = FahtoCel(lowfloat)
+	}
 	
+	float averageTemperature = (highfloat + lowfloat)/2;
+		
+	printf("Public IP: %s\n", ipaddress);
 	printf("Coordinates: (%s, %s)\n", latitude, longitude);
 	printf("woeid: %s\n", woeid);
-	printf("Units given in: %s\n", temperatureUnits);
-	printf("(Fahrenheit) High: %s , Low: %s\n", high, low);
-	printf("(Celcius) High: %f , Low: %f\n", highfloat, lowfloat);
+	printf("Units were given in: %s\n", temperatureUnits);
+	printf("(in celsius) High: %f , Low: %f\n", highfloat, lowfloat);
 	printf("Average Temperature(C): %f\n", averageTemperature);
 	
 	
-    return 0;
+	return 0;
 }
+
+/*
+Woooooo it’s a ghost
+Spooky
+fuck your ghost
+
+How to curl:
+
+Other things to note:
+You can view content of variable content with:
+echo $content
+You can view content of file content.txt with:
+cat /content.txt
+
+From the onion omega, run:
+
+To get longitude and latitude from IP address, run:
+
+curl freegeoip.net/json/[IPADDRESS] > content.txt
+
+Parse through coordinates.txt to get longitude and latitude
+
+Given any longitude and latitude, we can get the woeid(specifies where the place is) with:
+
+curl query.yahooapis.com/v1/public/yql -d q="select woeid from geo.places where text=\"([LONGITUDE],[LATITUDE])\"" -d format=json > content.txt
+
+which stores the woeid in weather.txt
+
+Using the woeid, we can get information on the location’s weather with:
+
+curl query.yahooapis.com/v1/public/yql -d q="select * from weather.forecast where woeid=[WOEID]" -d format=json > weather.txt
+
+This stores the information in weather.txt
+*/
