@@ -150,11 +150,11 @@ int main (int argc, char ** argv, char ** envp)
 			printf("button 5 is pressed\n");
 		}
 					    
-    		a = changeValues (button1.pre_vals, button1.cur_val);
-    		a = changeValues (button2.pre_vals, button2.cur_val);
-    		a = changeValues (button3.pre_vals, button3.cur_val);
-    		a = changeValues (button4.pre_vals, button4.cur_val);
-    		a = changeValues (button5.pre_vals, button5.cur_val);
+    		a = changeValues (button1.prev_vals, button1.cur_val);
+    		a = changeValues (button2.prev_vals, button2.cur_val);
+    		a = changeValues (button3.prev_vals, button3.cur_val);
+    		a = changeValues (button4.prev_vals, button4.cur_val);
+    		a = changeValues (button5.prev_vals, button5.cur_val);
 		
 		button1.pressed = false;
 		button2.pressed = false;
