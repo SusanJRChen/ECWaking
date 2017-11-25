@@ -38,11 +38,11 @@ bool initialize(int prev_vals[]){
 }
 
 bool changeValues (int prev_vals[], int cur_val){
-    	for (int i = 0; i < 4; i++){
-        	pre_vals [i+1] = pre_vals [i];
-    	}
-    	pre_vals[0] = cur_val;
-    	return true;
+    for (int i = 0; i < 4; i++){
+        prev_vals [i+1] = prev_vals [i];
+    }
+    prev_vals[0] = cur_val;
+    return true;
 }
 
 int main (int argc, char ** argv, char ** envp)
