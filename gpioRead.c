@@ -51,11 +51,11 @@ int main (int argc, char ** argv, char ** envp)
 {	
 	bool a = true;
 	
-	struct Button button1 = {0, 0, 0, {0, 0, 0, 0, 0}, 0, true};
-	struct Button button2 = {0, 0, 0, {0, 0, 0, 0, 0}, 0, true};
-	struct Button button3 = {0, 0, 0, {0, 0, 0, 0, 0}, 0, true};
-	struct Button button4 = {0, 0, 0, {0, 0, 0, 0, 0}, 0, true};
-    	struct Button button5 = {0, 0, 0, {0, 0, 0, 0, 0}, 0, true} ;
+	struct Button button1 = {1, 0, 0, {0, 0, 0, 0, 0}, 0, false};
+	struct Button button2 = {2, 0, 0, {0, 0, 0, 0, 0}, 0, false};
+	struct Button button3 = {3, 0, 0, {0, 0, 0, 0, 0}, 0, false};
+	struct Button button4 = {4, 0, 0, {0, 0, 0, 0, 0}, 0, false};
+    	struct Button button5 = {5, 0, 0, {0, 0, 0, 0, 0}, 0, false};
 	
 	button1.pressed = false;
 	button2.pressed = false;
