@@ -8,14 +8,14 @@
 #include <ugpio/ugpio.h>
 
 struct Button {
-	int pin = 0;
-	int request = 0;
-	int receive = 0;
+	int pin;
+	int request;
+	int receive;
 	
-	int prev_vals[5] = {0, 0, 0, 0, 0};
-	int cur_val = 0;
+	int prev_vals[5];
+	int cur_val;
 
-	bool pressed = false;	
+	bool pressed;	
 };
 
 bool isPressed(int prev_vals[], int cur_val){
@@ -39,7 +39,7 @@ bool initialize(int prev_vals[]){
 
 bool changeValues (int prev_vals[], int cur_val){
     	for (int i = 0; i < 4; i++){
-        	prevals [i+1] = prevals [i];
+        	pre_vals [i+1] = pre_vals [i];
     	}
     	pre_vals[0] = cur_val;
     	return true;
@@ -49,11 +49,11 @@ int main (int argc, char ** argv, char ** envp)
 {	
 	bool a = true;
 	
-	struct Button button1 = {0};
-	struct Button button2 = {0};
-	struct Button button3 = {0};
-	struct Button button4 = {0};
-    	struct Button button5 = {0};
+	struct Button button1 = {0, 0, 0, {0, 0, 0, 0, 0}, 0, true};
+	struct Button button2 = {0, 0, 0, {0, 0, 0, 0, 0}, 0, true};
+	struct Button button3 = {0, 0, 0, {0, 0, 0, 0, 0}, 0, true};
+	struct Button button4 = {0, 0, 0, {0, 0, 0, 0, 0}, 0, true};
+    	struct Button button5 = {0, 0, 0, {0, 0, 0, 0, 0}, 0, true} ;
 	
 	button1.pressed = false;
 	button2.pressed = false;
