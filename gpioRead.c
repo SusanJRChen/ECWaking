@@ -30,7 +30,7 @@ bool isPressed(int prev_vals[], int cur_val){
 	return true;
 }
 
-bool changeValues (int& prev_vals[], int cur_val){
+bool changeValues (int& prev_vals, int cur_val){
     for (int i = 0; i < 4; i++){
         prevals [i+1] = prevals [i];
     }
