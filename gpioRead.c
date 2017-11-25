@@ -34,7 +34,7 @@ bool isPressed(int prev_vals[], int cur_val){
 
 bool initialize(int prev_vals[]){
 	for (int i = 0; i < 5; i++){
-		pre_vals[i] = 0;
+		prev_vals[i] = 0;
 	}
 	return true;
 }
