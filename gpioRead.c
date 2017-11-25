@@ -76,11 +76,11 @@ int main (int argc, char ** argv, char ** envp)
 	button4.request = gpio_is_requested(button4.pin);
 	button5.request = gpio_is_requested(button5.pin);
 	
-	a = initialize (button1.pre_vals);
-	a = initialize (button2.pre_vals);
-	a = initialize (button3.pre_vals);
-	a = initialize (button4.pre_vals);
-	a = initialize (button5.pre_vals);
+	a = initialize (button1.prev_vals);
+	a = initialize (button2.prev_vals);
+	a = initialize (button3.prev_vals);
+	a = initialize (button4.prev_vals);
+	a = initialize (button5.prev_vals);
 	
 	button1.cur_val = 0;
 	button2.cur_val = 0;
