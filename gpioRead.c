@@ -124,5 +124,11 @@ int main (int argc, char ** argv, char ** envp)
     		changeValues (button4.pre_vals, button4.cur_val);
     		changeValues (button5.pre_vals, button5.cur_val);
 		
+		button1.pressed = false;
+		button2.pressed = false;
+		button3.pressed = false;
+		button4.pressed = false;
+		button5.pressed = false;
+		
 	}
 }
