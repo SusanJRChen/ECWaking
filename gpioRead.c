@@ -44,15 +44,13 @@ int main (int argc, char ** argv, char ** envp)
 	struct Button button2 = {0};
 	struct Button button3 = {0};
 	struct Button button4 = {0};
-    struct Button button5 = {0};
+    	struct Button button5 = {0};
     
-    struct Button buttons[5] = {0};
-
 	button1.pin = 1;
 	button2.pin = 2;
-    button3.pin = 3;
-    button4.pin = 4;
-    button5.pin = 5;
+    	button3.pin = 3;
+    	button4.pin = 4;
+    	button5.pin = 5;
 	
 	button1.request = gpio_is_requested(button1.pin);
 	button2.request = gpio_is_requested(button2.pin);
@@ -119,14 +117,12 @@ int main (int argc, char ** argv, char ** envp)
 		if (button5.pressed){
 			printf("button 5 is pressed\n");
 		}
+			    
+    		changeValues (button1.pre_vals, button1.cur_val);
+    		changeValues (button2.pre_vals, button2.cur_val);
+    		changeValues (button3.pre_vals, button3.cur_val);
+    		changeValues (button4.pre_vals, button4.cur_val);
+    		changeValues (button5.pre_vals, button5.cur_val);
 		
 	}
-    
-    changeValues (button1.pre_vals, button1.cur_val);
-    changeValues (button2.pre_vals, button2.cur_val);
-    changeValues (button3.pre_vals, button3.cur_val);
-    changeValues (button4.pre_vals, button4.cur_val);
-    changeValues (button5.pre_vals, button5.cur_val);
-
-	
 }
