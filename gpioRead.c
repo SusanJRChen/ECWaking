@@ -8,14 +8,14 @@
 #include <ugpio/ugpio.h>
 
 struct Button {
-	int pin;
-	int request;
-	int receive;
+	int pin = 0;
+	int request = 0;
+	int receive = 0;
 	
-	int prev_vals[5];
-	int cur_val;
+	int prev_vals[5] = {0};
+	int cur_val = 0;
 
-	bool pressed;	
+	bool pressed = false;	
 };
 
 bool isPressed(int prev_vals[], int cur_val){
