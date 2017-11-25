@@ -30,21 +30,37 @@ bool isPressed(int prev_vals[], int cur_val){
 	return true;
 }
 
+bool initialize(int prev_vals[]){
+	for (int i = 0; i < 5; i++){
+		pre_vals[i] = 0;
+	}
+	return true;
+}
+
 bool changeValues (int prev_vals[], int cur_val){
-    for (int i = 0; i < 4; i++){
-        prevals [i+1] = prevals [i];
-    }
-    pre_vals[0] = cur_val;
-    return true;
+    	for (int i = 0; i < 4; i++){
+        	prevals [i+1] = prevals [i];
+    	}
+    	pre_vals[0] = cur_val;
+    	return true;
 }
 
 int main (int argc, char ** argv, char ** envp)
 {	
+	bool a = true;
+	
 	struct Button button1 = {0};
 	struct Button button2 = {0};
 	struct Button button3 = {0};
 	struct Button button4 = {0};
     	struct Button button5 = {0};
+	
+	button1.pressed = false;
+	button2.pressed = false;
+	button3.pressed = false;
+	button3.pressed = false;
+	button4.pressed = false;
+	button5.pressed = false;
     
 	button1.pin = 1;
 	button2.pin = 2;
@@ -57,6 +73,20 @@ int main (int argc, char ** argv, char ** envp)
 	button3.request = gpio_is_requested(button3.pin);
 	button4.request = gpio_is_requested(button4.pin);
 	button5.request = gpio_is_requested(button5.pin);
+	
+	a = initialize (button1.pre_vals);
+	a = initialize (button2.pre_vals);
+	a = initialize (button3.pre_vals);
+	a = initialize (button4.pre_vals);
+	a = initialize (button5.pre_vals);
+	
+	button1.cur_val = 0;
+	button2.cur_val = 0;
+	button3.cur_val = 0;
+	button4.cur_val = 0;
+	button5.cur_val = 0;
+
+	
 	
 	if (button1.request < 0 || button2.request < 0 || button3.request < 0 || button4.request < 0 || button5.request < 0)
 	{
@@ -117,9 +147,7 @@ int main (int argc, char ** argv, char ** envp)
 		if (button5.pressed){
 			printf("button 5 is pressed\n");
 		}
-		
-		bool a = true;
-			    
+					    
     		a = changeValues (button1.pre_vals, button1.cur_val);
     		a = changeValues (button2.pre_vals, button2.cur_val);
     		a = changeValues (button3.pre_vals, button3.cur_val);
