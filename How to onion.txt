@@ -1,7 +1,7 @@
 How to:
 
 run:
-sh xCompile.sh -buildroot ~/source/ -lib "upgio -lonioni2c"
+sh xCompile.sh -buildroot ~/source/ -lib "ugpio -lonioni2c"
 
 upload gpioRead into Editor for Onion Omega
 ssh into Omega
