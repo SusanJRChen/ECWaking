@@ -51,11 +51,11 @@ int main (int argc, char ** argv, char ** envp)
 {	
 	bool a = true;
 	
-	struct Button button1 = {0, 0, 0, {0, 0, 0, 0, 0}, 0, false};
-	struct Button button2 = {1, 0, 0, {0, 0, 0, 0, 0}, 0, false};
-	struct Button button3 = {2, 0, 0, {0, 0, 0, 0, 0}, 0, false};
-	struct Button button4 = {3, 0, 0, {0, 0, 0, 0, 0}, 0, false};
-    	struct Button button5 = {6, 0, 0, {0, 0, 0, 0, 0}, 0, false};
+	struct Button button1 = {1, 0, 0, {0, 0, 0, 0, 0}, 0, false};
+	struct Button button2 = {2, 0, 0, {0, 0, 0, 0, 0}, 0, false};
+	struct Button button3 = {3, 0, 0, {0, 0, 0, 0, 0}, 0, false};
+	struct Button button4 = {6, 0, 0, {0, 0, 0, 0, 0}, 0, false};
+    	struct Button button5 = {18, 0, 0, {0, 0, 0, 0, 0}, 0, false};
 	
 	button1.request = gpio_is_requested(button1.pin);
 	button2.request = gpio_is_requested(button2.pin);
