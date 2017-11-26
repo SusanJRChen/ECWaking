@@ -7,8 +7,6 @@
 
 #include <ugpio/ugpio.h>
 
-// heelo
-
 struct Button {
 	int pin;
 	int request;
@@ -24,7 +22,11 @@ bool isPressed(int prev_vals[], int cur_val){
 	if(!cur_val)
 		return false;
 	else {
-		for (int i = 0; i < 5; i++){
+		//for (int i = 0; i < 3; i++){
+		//	if (!prev_vals[i])
+		//		return false;
+		//}
+		for (int i = 0; i < 8; i++){
 			if(prev_vals[i])
 				return false;	
 		}		
@@ -33,15 +35,15 @@ bool isPressed(int prev_vals[], int cur_val){
 }
 
 bool initialize(int prev_vals[]){
-	for (int i = 0; i < 5; i++){
+	for (int i = 0; i < 8; i++){
 		prev_vals[i] = 0;
 	}
 	return true;
 }
 
 bool changeValues (int prev_vals[], int cur_val){
-    for (int i = 0; i < 4; i++){
-        prev_vals [i+1] = prev_vals [i];
+    for (int i = 7; i > 0; i--){
+        prev_vals [i] = prev_vals [i - 1];
     }
     prev_vals[0] = cur_val;
     return true;
@@ -51,11 +53,11 @@ int main (int argc, char ** argv, char ** envp)
 {	
 	bool a = true;
 	
-	struct Button button1 = {1, 0, 0, {0, 0, 0, 0, 0}, 0, false};
-	struct Button button2 = {2, 0, 0, {0, 0, 0, 0, 0}, 0, false};
-	struct Button button3 = {3, 0, 0, {0, 0, 0, 0, 0}, 0, false};
-	struct Button button4 = {6, 0, 0, {0, 0, 0, 0, 0}, 0, false};
-    	struct Button button5 = {18, 0, 0, {0, 0, 0, 0, 0}, 0, false};
+	struct Button button1 = {1, 0, 0, {0, 0, 0, 0, 0, 0, 0, 0}, 0, false};
+	struct Button button2 = {2, 0, 0, {0, 0, 0, 0, 0, 0, 0, 0}, 0, false};
+	struct Button button3 = {3, 0, 0, {0, 0, 0, 0, 0, 0, 0, 0}, 0, false};
+	struct Button button4 = {6, 0, 0, {0, 0, 0, 0, 0, 0 ,0, 0}, 0, false};
+    	struct Button button5 = {18, 0, 0, {0, 0, 0, 0, 0, 0, 0, 0}, 0, false};
 	
 	button1.request = gpio_is_requested(button1.pin);
 	button2.request = gpio_is_requested(button2.pin);
@@ -118,6 +120,9 @@ int main (int argc, char ** argv, char ** envp)
 		button3.pressed = isPressed(button3.prev_vals, button3.cur_val);
 		button4.pressed = isPressed(button4.prev_vals, button4.cur_val);
 		button5.pressed = isPressed(button5.prev_vals, button5.cur_val);
+		
+		//printf ("%i %i %i %i %i\n, button1.cur_val, button2.cur_val, button3.cur_val, button4.cur_val, button5.cur_val);
+		//usleep (10000);
         
         
 		if (button1.pressed){
