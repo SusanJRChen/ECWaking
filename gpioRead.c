@@ -12,7 +12,7 @@ struct Button {
 	int request;
 	int receive;
 	
-	int prev_vals[5];
+	int prev_vals[8];
 	int cur_val;
 
 	bool pressed;	
