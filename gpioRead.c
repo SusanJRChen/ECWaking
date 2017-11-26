@@ -19,6 +19,7 @@ struct Button {
 };
 
 bool isPressed(int prev_vals[], int cur_val){
+	int ctr = 0;
 	if(!cur_val)
 		return false;
 	else {
@@ -28,9 +29,12 @@ bool isPressed(int prev_vals[], int cur_val){
 		//}
 		for (int i = 0; i < 8; i++){
 			if(prev_vals[i])
-				return false;	
+				ctr++;
+				//return false;	
 		}		
 	}
+	if (ctr > 2)
+		return false;
 	return true;
 }
 
