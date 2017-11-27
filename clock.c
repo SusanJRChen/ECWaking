@@ -9,6 +9,95 @@
 #include<math.h>
 
 
+struct Button {
+
+	int pin;
+
+	int request;
+
+	int receive;
+
+	
+
+	int prev_vals[5];
+
+	int cur_val;
+
+
+
+	bool pressed;	
+
+};
+
+
+
+bool isPressed(int prev_vals[], int cur_val){
+
+	//int ctr = 0;
+
+	if(!cur_val)
+
+		return false;
+
+	else {
+
+		//for (int i = 0; i < 3; i++){
+
+		//	if (!prev_vals[i])
+
+		//		return false;
+
+		//}
+
+		for (int i = 0; i < 5; i++){
+
+			if(prev_vals[i])
+
+				//ctr++;
+
+				return false;	
+
+		}		
+
+	}
+
+	//if (ctr > 2)
+
+		//return false;
+
+	return true;
+
+}
+
+
+
+bool initialize(int prev_vals[]){
+
+	for (int i = 0; i < 5; i++){
+
+		prev_vals[i] = 0;
+
+	}
+
+	return true;
+
+}
+
+
+
+bool changeValues (int prev_vals[], int cur_val){
+
+    for (int i = 5; i > 0; i--){
+
+        prev_vals [i] = prev_vals [i - 1];
+
+    }
+
+    prev_vals[0] = cur_val;
+
+    return true;
+
+}
 bool isNum (char in)
 {
 	if (in >= '0' && in <= '9')
@@ -242,9 +331,9 @@ bool getLineWithString(char * filename, char * string, char * buff){
 	}
 	return false;
 }
-char* getTime() //function that will return time 
+int getTime(char ** line) //function that will return time 
 {
-    char line[20];
+    //char line[20];
     time_t tm;
     tm = time(NULL);
     printf("Current Time: %s", ctime(&tm));
@@ -254,13 +343,13 @@ char* getTime() //function that will return time
     time(&my_time);
     timeinfo = localtime(&my_time);
 
-    snprintf(line, 20, "       %d:%d       ", timeinfo->tm_hour, timeinfo->tm_min);
-    return line;
+    snprintf(*line, 20, "       %d:%d       ", timeinfo->tm_hour, timeinfo->tm_min);
+    return 1;
 }
-char* getDate() //function that will return date
+int getDate(char ** line) //function that will return date
 {
-    char line[20];
-    char day[9];
+    //char line[20];
+    char * day;//day[9];
     char month[4]; 
     time_t tm;
     tm = time(NULL);
@@ -274,76 +363,72 @@ char* getDate() //function that will return date
     switch(timeinfo->tm_mday) //assign the necessary day to the string
     {
         case 0:
-            day = "Sunday";
+            snprintf(day, 9, "%s", "Sunday");//day = "Sunday";
             break;
         case 1:
-            day = "Monday";
+            snprintf(day, 9, "%s", "Monday");//day = "Monday";
             break;
         case 2:
-            day = "Tuesday";
+            snprintf(day, 9, "%s", "Tuesday");//day = "Tuesday";
             break;
         case 3:
-            day = "Wednesday";
+            snprintf(day, 9, "%s", "Wednesday");//day = "Wednesday";
             break;
         case 4:
-            day = "Thursday";
+            snprintf(day, 9, "%s", "Thursday");//day = "Thursday";
             break;
         case 5:
-            day = "Friday";
+            snprintf(day, 9, "%s", "Friday");//day = "Friday";
             break;
         case 6:
-            day = "Saturday";
-            break;
-        case default:
-            day = "Funday";
+            snprintf(day, 9, "%s", "Saturday");//day = "Saturday";
             break;
     }
 
     switch(timeinfo->tm_mon) //assign the necessary month to the string
     {
         case 0:
-            month = "Jan";
+            snprintf(month,4, "%s", "Jan");//month = "Jan";
             break;
         case 1:
-            month = "Feb";
+            snprintf(month,4, "%s", "Feb");//month = "Feb";
             break;
         case 2:
-            month = "Mar";
+            snprintf(month,4, "%s", "Mar");//month = "Mar";
             break;
         case 3:
-            month = "Apr";
+            snprintf(month,4, "%s", "Apr");//month = "Apr";
             break;
         case 4:
-            month = "May";
+            snprintf(month,4, "%s", "May");//month = "May";
             break;
         case 5:
-            month = "June";
+            snprintf(month,4, "%s", "June");//month = "June";
             break;
         case 6:
-            month = "July";
+            snprintf(month,4, "%s", "July");//month = "July";
             break;
         case 7:
-            month = "Aug";
+            snprintf(month,4, "%s", "Aug");//month = "Aug";
             break;
         case 8:
-            month = "Sept";
+            snprintf(month,4, "%s", "Sept");//month = "Sept";
             break;
         case 9:
-            month = "Oct";
+            snprintf(month,4, "%s", "Oct");//month = "Oct";
             break;
         case 10:
-            month = "Nov";
+            snprintf(month,4, "%s", "Nov");//month = "Nov";
             break;
         case 11:
-            month = "Dec";
+            snprintf(month,4, "%s", "Dec");//month = "Dec";
             break;
     }
-    snprintf(line, 20, "%s %s %d", month, day, timeinfo->tm_year+1900);
-    return line;
+    snprintf(*line, 20, "%s %s %d", month, day, timeinfo->tm_year+1900);
+    return 1;
 }
-char* getWeather() //function that will return weather
-{
-    char * ipaddress = (char *) malloc(20);
+bool getTemperatureInC(float * hightemp, float * lowtemp){
+	char * ipaddress = (char *) malloc(20);
 	char command[256];
 	char buff[256];
 	
@@ -388,35 +473,52 @@ char* getWeather() //function that will return weather
 	stringToFloat(high, &highfloat);
 	stringToFloat(low, &lowfloat);	
 	
-	if (temperatureUnits == "F"){
+	if (temperatureUnits == "F" || temperatureUnits[0] == 'F'){
 		highfloat = FahtoCel(highfloat);
-		lowfloat = FahtoCel(lowfloat)
+		lowfloat = FahtoCel(lowfloat);
 	}
 	
 	float averageTemperature = (highfloat + lowfloat)/2;
-		
+	
+	/*
 	printf("Public IP: %s\n", ipaddress);
 	printf("Coordinates: (%s, %s)\n", latitude, longitude);
 	printf("woeid: %s\n", woeid);
 	printf("Units were given in: %s\n", temperatureUnits);
 	printf("(in celsius) High: %f , Low: %f\n", highfloat, lowfloat);
 	printf("Average Temperature(C): %f\n", averageTemperature);
+	*/
+	
+	*hightemp = highfloat;
+	*lowtemp = lowfloat;
+	return true;
 }
-char* getAlarm(bool alarm, int hours, int minutes) //function that will return the alarm
+
+int getWeather(char **line)
 {
-    char line[20];
+	float lowtemp;
+	float hightemp;
+	if (!getTemperatureInC(&hightemp, &lowtemp))
+		return -1;
+	
+	snprintf(*line, 40, "%s%f%s%f", "High: ", hightemp, ", Low: ", lowtemp);
+	
+}
+int getAlarm(bool alarm, int hours, int minutes, char ** line) //function that will return the alarm
+{
+    //char line[20];
 
 
     if(!alarm) //if there is no alarm
     {
-        snprintf(line, 20, "%s", "Have a great day!");
+        snprintf(*line, 20, "%s", "Have a great day!");
     }
     else
     {
-        snprintf(line, 20, "   Alarm at %d:%d   ", hours, minutes);
+        snprintf(*line, 20, "   Alarm at %d:%d   ", hours, minutes);
     }
 
-    return line;
+    return 1;
 }
 
 enum clockState {Normal, ChangeAlarm, AlarmON };
@@ -429,10 +531,10 @@ int main(int argc, char **argv, char **envp)
     bool snooze = false;
     int aMinutes = 0;
     int aHours = 12;
-    char line1[20];
-    char line2[40]; //line 2 will control lines 2 and 4 hence 40 lines
-    char line3[20];
-    char line4[20];
+    char *line1;//line1[20];
+    char *line2;//line2[40]; //line 2 will control lines 2 and 4 hence 40 lines
+    char *line3;//line3[20];
+    char *line4;//line4[20];
     char command[200]; //command meant to sent to bash to control display
 
 
@@ -490,13 +592,14 @@ int main(int argc, char **argv, char **envp)
 	button3.receive = gpio_direction_input(button3.pin);
 	button4.receive = gpio_direction_input(button4.pin);
 	button5.receive = gpio_direction_input(button5.pin);
-
+	
+    enum clockState state = Normal; 
     while(1)
     {
         //insert logic for buttons here, based on the logic change the state of the machine
         //check if the time has been reached
         //check if the button has been pressed and change the bool of alarm
-        clockState state = Normal; 
+  
 
         button1.cur_val = gpio_get_value(button1.pin);
 		button2.cur_val = gpio_get_value(button2.pin);
@@ -512,32 +615,33 @@ int main(int argc, char **argv, char **envp)
         
         
 		if (button1.pressed)
-        {   
-            if(state == ChangeAlarm && modMinutes)
-            {
-                state = Normal;
-                modMinutes = false;
-            }
-			if(state == ChangeAlarm && !modMinutes)
-            {
-                modMinutes = true;
-            }
-            state = ChangeAlarm;
+                {   
+            		if(state == ChangeAlarm && modMinutes)
+            		{
+               			state = Normal;
+                		modMinutes = false;
+				
+            		}
+	    		if(state == ChangeAlarm && !modMinutes)
+            		{
+                		modMinutes = true;
+            		}
+            		state = ChangeAlarm;
 		}
 		if (button2.pressed)
-        {
+        	{
 			upPressed = true;
 		}
 		if (button3.pressed)
-        {
+        	{
 			downPressed = false;
 		}
 		if (button4.pressed)
-        {
+        	{
 			alarm = !alarm;
 		}
 		if (button5.pressed)
-        {
+        	{
 			snooze = true;
 		}
 					    
@@ -569,10 +673,10 @@ int main(int argc, char **argv, char **envp)
         switch(state)
         {
             case Normal:
-                line1 = getTime();
-                line2 = getDate();
-                line3 = getWeather();
-                line4 = getAlarm(alarm, aHours, aMinutes);
+                getTime(&line1);//line1 = getTime();
+                getDate(&line2);
+                getWeather(&line3);
+                getAlarm(alarm, aHours, aMinutes, &line4);
                 snprintf(line2, 40, "%s%s", line2, line4);
                 break;
             case ChangeAlarm:
@@ -641,7 +745,7 @@ int main(int argc, char **argv, char **envp)
                 if(alarm) //alarm off is pressed
                 {
                     aHours = tempHours; //reset the alarm to its original value;
-                    aMinutes = tempMinutes;
+                    aMinutes = tempMin;
 
                     alarm = false;
                     //stop the logic high
@@ -650,26 +754,16 @@ int main(int argc, char **argv, char **envp)
                     system("fast-gpio set 11 1");
                 }
                 break;
-            case default:
-                state = Normal;
-                break;
             
         }
 
         //combine all the lines to output and send it out
-        snprintf(command, 200 "\"python /FireOnion_I2C_LCD/src/lcd.py - a 0x27 --line1=\"%s\" --line2=\"%s\" --line3=\"%s\"\"", line1, line2, line3);
+        snprintf(command, 200, "\"python /FireOnion_I2C_LCD/src/lcd.py - a 0x27 --line1=\"%s\" --line2=\"%s\" --line3=\"%s\"\"", line1, line2, line3);
         system(command);
 
         usleep(200000); //sleep for 0.2 seconds
     }
 
-    //below is sample code of how the time class works and outputs data
-
-    printf("year-> %d \n", timeinfo->tm_year + 1900);
-    printf("month-> %d \n", timeinfo->tm_mon + 1);
-    printf("date-> %d \n", timeinfo->tm_mday); //day
-    printf("hour-> %d \n", timeinfo->tm_hour);
-    printf("minutes-> %d \n", timeinfo->tm_min);
-    printf("seconds-> %d \n", timeinfo->tm_sec);
     return 0;
 }
+
