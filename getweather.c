@@ -21,7 +21,10 @@ bool checkChar(char in){
 }
 
 float FahtoCel (float value){
-	return (value - 32) * 1.8;
+	value -= 32;
+	value /= 1.8;
+	
+	return value;
 }
 
 bool stringToFloat(const char input[], float *value) {
@@ -238,8 +241,8 @@ bool getLineWithString(char * filename, char * string, char * buff){
 	return false;
 }
 
-int main(){	
-    char * ipaddress = (char *) malloc(20);
+bool getTemperatureInC(float * hightemp, float * lowtemp){
+	char * ipaddress = (char *) malloc(20);
 	char command[256];
 	char buff[256];
 	
@@ -284,22 +287,45 @@ int main(){
 	stringToFloat(high, &highfloat);
 	stringToFloat(low, &lowfloat);	
 	
-	if (temperatureUnits == "F"){
+	if (temperatureUnits == "F" || temperatureUnits[0] == 'F'){
 		highfloat = FahtoCel(highfloat);
-		lowfloat = FahtoCel(lowfloat)
+		lowfloat = FahtoCel(lowfloat);
 	}
 	
 	float averageTemperature = (highfloat + lowfloat)/2;
-		
+	
+	/*
 	printf("Public IP: %s\n", ipaddress);
 	printf("Coordinates: (%s, %s)\n", latitude, longitude);
 	printf("woeid: %s\n", woeid);
 	printf("Units were given in: %s\n", temperatureUnits);
 	printf("(in celsius) High: %f , Low: %f\n", highfloat, lowfloat);
 	printf("Average Temperature(C): %f\n", averageTemperature);
+	*/
 	
+	*hightemp = highfloat;
+	*lowtemp = lowfloat;
+	return true;
+}
+
+int getWeather(char **line)
+{
+	float lowtemp;
+	float hightemp;
+	if (!getTemperatureInC(&hightemp, &lowtemp))
+		return -1;
 	
-	return 0;
+	snprintf(*line, 40, "%s%f%s%f", "High: ", hightemp, ", Low: ", lowtemp);
+	
+}
+
+int main(){	
+    char * line;
+	line = (char*)malloc(40 * sizeof(char));
+	
+	getWeather(&line);
+	
+	printf("%s\n", line);
 }
 
 /*
