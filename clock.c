@@ -8,100 +8,54 @@
 #include <time.h>
 #include<math.h>
 
-
 struct Button {
-
 	int pin;
-
 	int request;
-
 	int receive;
 
-	
-
 	int prev_vals[5];
-
 	int cur_val;
-
-
-
+	
 	bool pressed;	
 
 };
 
-
-
 bool isPressed(int prev_vals[], int cur_val){
-
-	//int ctr = 0;
-
-	if(!cur_val)
-
+	if(!cur_val){
 		return false;
-
-	else {
-
-		//for (int i = 0; i < 3; i++){
-
-		//	if (!prev_vals[i])
-
-		//		return false;
-
-		//}
-
-		for (int i = 0; i < 5; i++){
-
-			if(prev_vals[i])
-
-				//ctr++;
-
-				return false;	
-
-		}		
-
 	}
-
-	//if (ctr > 2)
-
-		//return false;
-
+	else {
+		for (int i = 0; i < 5; i++){
+			if(prev_vals[i])
+				return false;
+			}
+	}
+	
 	return true;
-
 }
-
-
 
 bool initialize(int prev_vals[]){
-
 	for (int i = 0; i < 5; i++){
-
 		prev_vals[i] = 0;
-
 	}
-
+	
 	return true;
-
 }
 
-
-
 bool changeValues (int prev_vals[], int cur_val){
-
     for (int i = 5; i > 0; i--){
-
         prev_vals [i] = prev_vals [i - 1];
-
     }
-
     prev_vals[0] = cur_val;
 
     return true;
-
 }
-bool isNum (char in)
-{
-	if (in >= '0' && in <= '9')
+
+bool isNum (char in){
+	if (in >= '0' && in <= '9'){
 		return true;
+	}
+	
 	return false;
 }
 
@@ -277,6 +231,7 @@ bool getIP(char ** ipaddress){
 
 bool getLongandLat(char * buff, char ** latitude, char ** longitude){
     char * result= strstr(buff, "latitude\":");
+	
     int LatitudeIndex = result - buff + 11;
     result= strstr(buff, "longitude\":");
     int LongitudeIndex = result - buff + 12;
@@ -291,6 +246,7 @@ bool getLongandLat(char * buff, char ** latitude, char ** longitude){
 bool getWoeid(char * buff, char ** woeid){
     int woeidIndex = strstr(buff, "woeid\":") - buff + 9;
     int woeidEndIndex = strstr(buff, "\"}}") - buff + 1;
+	
     *woeid = substring(buff, woeidIndex, woeidEndIndex - woeidIndex);
     
     return true;
@@ -311,8 +267,9 @@ bool getUnits(char * buff, char ** temperatureUnits){
 	int unitIndex = strstr(buff, "temperature\":") - buff + 15;
 	
 	*temperatureUnits = substring(buff, unitIndex, 1);
-	if (*temperatureUnits != "C" && *temperatureUnits != "F")
+	if (*temperatureUnits != "C" && *temperatureUnits != "F"){
 		return false;
+	}
 	
 	return true;
 }
@@ -329,14 +286,13 @@ bool getLineWithString(char * filename, char * string, char * buff){
 			return true;			
 		}
 	}
+	
 	return false;
 }
 int getTime(char ** line) //function that will return time 
 {
-    //char line[20];
     time_t tm;
     tm = time(NULL);
-    printf("Current Time: %s", ctime(&tm));
 
     time_t my_time;
     struct tm *timeinfo;
@@ -344,13 +300,15 @@ int getTime(char ** line) //function that will return time
     timeinfo = localtime(&my_time);
 
     snprintf(*line, 20, "       %d:%d       ", timeinfo->tm_hour, timeinfo->tm_min);
+	
     return 1;
 }
 int getDate(char ** line) //function that will return date
 {
-    //char line[20];
-    char * day;//day[9];
-    char month[4]; 
+    char * day;
+    char * month; 
+	day = (char*)malloc(9 * sizeof(char));
+	month = (char*)malloc(4 * sizeof(char));
     time_t tm;
     tm = time(NULL);
 
@@ -359,7 +317,7 @@ int getDate(char ** line) //function that will return date
     time(&my_time);
     timeinfo = localtime(&my_time);
     
-
+	/*
     switch(timeinfo->tm_mday) //assign the necessary day to the string
     {
         case 0:
@@ -383,48 +341,48 @@ int getDate(char ** line) //function that will return date
         case 6:
             snprintf(day, 9, "%s", "Saturday");//day = "Saturday";
             break;
-    }
+    }*/
 
     switch(timeinfo->tm_mon) //assign the necessary month to the string
     {
         case 0:
-            snprintf(month,4, "%s", "Jan");//month = "Jan";
+            snprintf(month,4, "%s", "Jan");
             break;
         case 1:
-            snprintf(month,4, "%s", "Feb");//month = "Feb";
+            snprintf(month,4, "%s", "Feb");
             break;
         case 2:
-            snprintf(month,4, "%s", "Mar");//month = "Mar";
+            snprintf(month,4, "%s", "Mar");
             break;
         case 3:
-            snprintf(month,4, "%s", "Apr");//month = "Apr";
+            snprintf(month,4, "%s", "Apr");
             break;
         case 4:
-            snprintf(month,4, "%s", "May");//month = "May";
+            snprintf(month,4, "%s", "May");
             break;
         case 5:
-            snprintf(month,4, "%s", "June");//month = "June";
+            snprintf(month,4, "%s", "June");
             break;
         case 6:
-            snprintf(month,4, "%s", "July");//month = "July";
+            snprintf(month,4, "%s", "July");
             break;
         case 7:
-            snprintf(month,4, "%s", "Aug");//month = "Aug";
+            snprintf(month,4, "%s", "Aug")
             break;
         case 8:
-            snprintf(month,4, "%s", "Sept");//month = "Sept";
+            snprintf(month,4, "%s", "Sept");
             break;
         case 9:
-            snprintf(month,4, "%s", "Oct");//month = "Oct";
+            snprintf(month,4, "%s", "Oct");
             break;
         case 10:
-            snprintf(month,4, "%s", "Nov");//month = "Nov";
+            snprintf(month,4, "%s", "Nov");
             break;
         case 11:
-            snprintf(month,4, "%s", "Dec");//month = "Dec";
+            snprintf(month,4, "%s", "Dec");
             break;
     }
-    snprintf(*line, 20, "%s %s %d", month, day, timeinfo->tm_year+1900);
+    snprintf(*line, 20, "%s %d %d", month, timeinfo->tm_mday, timeinfo->tm_year+1900);
     return 1;
 }
 bool getTemperatureInC(float * hightemp, float * lowtemp){
@@ -501,14 +459,10 @@ int getWeather(char **line)
 	if (!getTemperatureInC(&hightemp, &lowtemp))
 		return -1;
 	
-	snprintf(*line, 40, "%s%f%s%f", "High: ", hightemp, ", Low: ", lowtemp);
-	
+	snprintf(*line, 40, "%s%f%s%f", "High: ", hightemp, ", Low: ", lowtemp);	
 }
 int getAlarm(bool alarm, int hours, int minutes, char ** line) //function that will return the alarm
 {
-    //char line[20];
-
-
     if(!alarm) //if there is no alarm
     {
         snprintf(*line, 20, "%s", "Have a great day!");
@@ -522,6 +476,7 @@ int getAlarm(bool alarm, int hours, int minutes, char ** line) //function that w
 }
 
 enum clockState {Normal, ChangeAlarm, AlarmON };
+
 int main(int argc, char **argv, char **envp)
 {
     bool alarm = false; //determines whether an alarm is active or not
@@ -531,12 +486,16 @@ int main(int argc, char **argv, char **envp)
     bool snooze = false;
     int aMinutes = 0;
     int aHours = 12;
-    char *line1;//line1[20];
-    char *line2;//line2[40]; //line 2 will control lines 2 and 4 hence 40 lines
-    char *line3;//line3[20];
-    char *line4;//line4[20];
+    char *line1;
+    char *line2;//line 2 will control lines 2 and 4 hence 40 lines
+    char *line3;
+    char *line4;
     char command[200]; //command meant to sent to bash to control display
 
+	line1 = (char*)malloc(20 * sizeof(char));
+	line2 = (char*)malloc(20 * sizeof(char));
+	line3 = (char*)malloc(20 * sizeof(char));
+	line4 = (char*)malloc(20 * sizeof(char));
 
     bool a = true;
 	
