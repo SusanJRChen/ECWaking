@@ -148,6 +148,7 @@ int main()
     FILE *fptr;
     fptr = fopen("log.txt","a");
     
+    logLevel = FATAL;
     getDate(&date);
     getLoggingTime(&time);
     getLogLevel(&loggingLevel, logLevel);
