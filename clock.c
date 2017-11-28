@@ -69,7 +69,7 @@ bool checkChar(char in){
 }
 
 float FahtoCel (float value){
-	return (value - 32) * 1.8;
+	return (value - 32) / 1.8;
 }
 
 bool stringToFloat(const char input[], float *value) {
@@ -298,9 +298,9 @@ int getTime(char ** line) //function that will return time
     struct tm *timeinfo;
     time(&my_time);
     timeinfo = localtime(&my_time);
-
-    snprintf(*line, 20, "       %d:%d       ", timeinfo->tm_hour, timeinfo->tm_min);
 	
+    snprintf(*line, 20, "       %02d:%02d       ", timeinfo->tm_hour, timeinfo->tm_min);
+    printf("%s", *line);
     return 1;
 }
 int getDate(char ** line) //function that will return date
@@ -317,8 +317,8 @@ int getDate(char ** line) //function that will return date
     time(&my_time);
     timeinfo = localtime(&my_time);
     
-	/*
-    switch(timeinfo->tm_mday) //assign the necessary day to the string
+	
+    switch(timeinfo->tm_wday) //assign the necessary day to the string
     {
         case 0:
             snprintf(day, 9, "%s", "Sunday");//day = "Sunday";
@@ -341,7 +341,7 @@ int getDate(char ** line) //function that will return date
         case 6:
             snprintf(day, 9, "%s", "Saturday");//day = "Saturday";
             break;
-    }*/
+    }
 
     switch(timeinfo->tm_mon) //assign the necessary month to the string
     {
@@ -367,7 +367,7 @@ int getDate(char ** line) //function that will return date
             snprintf(month,4, "%s", "July");
             break;
         case 7:
-            snprintf(month,4, "%s", "Aug")
+            snprintf(month,4, "%s", "Aug");
             break;
         case 8:
             snprintf(month,4, "%s", "Sept");
@@ -382,7 +382,8 @@ int getDate(char ** line) //function that will return date
             snprintf(month,4, "%s", "Dec");
             break;
     }
-    snprintf(*line, 20, "%s %d %d", month, timeinfo->tm_mday, timeinfo->tm_year+1900);
+    snprintf(*line, 20, " %s %s %d %d", day, month, timeinfo->tm_mday, timeinfo->tm_year+1900);
+    printf("%s", *line);
     return 1;
 }
 bool getTemperatureInC(float * hightemp, float * lowtemp){
@@ -459,17 +460,17 @@ int getWeather(char **line)
 	if (!getTemperatureInC(&hightemp, &lowtemp))
 		return -1;
 	
-	snprintf(*line, 40, "%s%f%s%f", "High: ", hightemp, ", Low: ", lowtemp);	
+	snprintf(*line, 20, "  %s%.1f%s%.1f", "High:", hightemp, " Low:", lowtemp);	
 }
 int getAlarm(bool alarm, int hours, int minutes, char ** line) //function that will return the alarm
 {
     if(!alarm) //if there is no alarm
     {
-        snprintf(*line, 20, "%s", "Have a great day!");
+        snprintf(*line, 20, "%s", "  Have a great day!");
     }
     else
     {
-        snprintf(*line, 20, "   Alarm at %d:%d   ", hours, minutes);
+        snprintf(*line, 20, "   Alarm at %02d:%02d   ", hours, minutes);
     }
 
     return 1;
@@ -484,18 +485,20 @@ int main(int argc, char **argv, char **envp)
     bool upPressed = false;
     bool downPressed = false;
     bool snooze = false;
-    int aMinutes = 0;
-    int aHours = 12;
+    int aMinutes = 36;
+    int aHours = 16;
     char *line1;
     char *line2;//line 2 will control lines 2 and 4 hence 40 lines
     char *line3;
     char *line4;
+    char *line5;
     char command[200]; //command meant to sent to bash to control display
 
 	line1 = (char*)malloc(20 * sizeof(char));
 	line2 = (char*)malloc(20 * sizeof(char));
 	line3 = (char*)malloc(20 * sizeof(char));
 	line4 = (char*)malloc(20 * sizeof(char));
+	line5 = (char*)malloc(40 * sizeof(char));
 
     bool a = true;
 	
@@ -551,7 +554,7 @@ int main(int argc, char **argv, char **envp)
 	button3.receive = gpio_direction_input(button3.pin);
 	button4.receive = gpio_direction_input(button4.pin);
 	button5.receive = gpio_direction_input(button5.pin);
-	
+    getWeather(&line3);
     enum clockState state = Normal; 
     while(1)
     {
@@ -589,11 +592,13 @@ int main(int argc, char **argv, char **envp)
 		}
 		if (button2.pressed)
         	{
-			upPressed = true;
+			if(state == ChangeAlarm)
+				upPressed = true;
 		}
 		if (button3.pressed)
         	{
-			downPressed = false;
+			if(state == ChangeAlarm)
+				downPressed = false;
 		}
 		if (button4.pressed)
         	{
@@ -634,9 +639,11 @@ int main(int argc, char **argv, char **envp)
             case Normal:
                 getTime(&line1);//line1 = getTime();
                 getDate(&line2);
-                getWeather(&line3);
+                
                 getAlarm(alarm, aHours, aMinutes, &line4);
-                snprintf(line2, 40, "%s%s", line2, line4);
+                snprintf(line5, 40, "%s%s", line2, line4);
+		if(timeinfo->tm_min == 30)
+			getWeather(&line3);
                 break;
             case ChangeAlarm:
 
@@ -679,13 +686,14 @@ int main(int argc, char **argv, char **envp)
                     }
                 }
 
-                snprintf(line1, 20,  "       %d:%d       ", aHours, aMinutes);
+                snprintf(line1, 20,  "       %02d:%02d       ", aHours, aMinutes);
                 
                 break;
             case AlarmON:
                 system("fast-gpio set 11 1");
                 int tempHours = aHours;
                 int tempMin = aMinutes;
+		getTime(&line1);
                 if(snooze) //the snooze button is pressed
                 {
                     //stop the logic high 
@@ -717,12 +725,12 @@ int main(int argc, char **argv, char **envp)
         }
 
         //combine all the lines to output and send it out
-        snprintf(command, 200, "\"python /FireOnion_I2C_LCD/src/lcd.py - a 0x27 --line1=\"%s\" --line2=\"%s\" --line3=\"%s\"\"", line1, line2, line3);
+        snprintf(command, 200, "python /FireOnion_I2C_LCD/src/lcd.py -a 0x27 --line1=\"%s\" --line2=\"%s\" --line3=\"%s\" \n", line1, line5, line3);
         system(command);
 
-        usleep(200000); //sleep for 0.2 seconds
     }
 
     return 0;
 }
+
 
