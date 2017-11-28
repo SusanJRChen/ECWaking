@@ -5,7 +5,7 @@
 #include<fcntl.h>
 #include<stdbool.h>
 #include<ugpio/ugpio.h>
-#include <time.h>
+#include<time.h>
 #include<math.h>
 
 struct Button {
@@ -1075,4 +1075,3 @@ int main(int argc, char **argv, char **envp)
     
     return 0;
 }
->>>>>>> 91f4fd0f797c19997733b3e60865c4939a0e4b76
