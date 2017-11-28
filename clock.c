@@ -5,7 +5,7 @@
 #include<fcntl.h>
 #include<stdbool.h>
 #include<ugpio/ugpio.h>
-#include <time.h>
+#include<time.h>
 #include<math.h>
 
 struct Button {
