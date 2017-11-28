@@ -475,7 +475,49 @@ int getAlarm(bool alarm, int hours, int minutes, char ** line) //function that w
     return 1;
 }
 
+int getLoggingTime(char ** line) //function that will return time
+{
+    time_t tm;
+    tm = time(NULL);
+    
+    time_t my_time;
+    struct tm *timeinfo;
+    time(&my_time);
+    timeinfo = localtime(&my_time);
+    
+    snprintf(*line, 20, "%d:%d:%d", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
+    
+    return 1;
+}
+
+int getLogLevel (char ** line, int level){
+    switch(level)
+    {
+        case 0:
+            snprintf(*line, 20, "TRACE");
+            break;
+        case 1:
+            snprintf(*line, 20, "DEBUG");
+            break;
+        case 2:
+            snprintf(*line, 20, "INFO");
+            break;
+        case 3:
+            snprintf(*line, 20, "WARNING");
+            break;
+        case 4:
+            snprintf(*line, 20, "ERROR");
+            break;
+        case 5:
+            snprintf(*line, 20, "FATAL");
+            break;
+    }
+    
+    return 1;
+}
+
 enum clockState {Normal, ChangeAlarm, AlarmON };
+enum LOGGING {TRACE, DEBUG, INFO, WARNING, ERROR, FATAL};
 
 int main(int argc, char **argv, char **envp)
 {
@@ -490,6 +532,26 @@ int main(int argc, char **argv, char **envp)
     char *line2;//line 2 will control lines 2 and 4 hence 40 lines
     char *line3;
     char *line4;
+	
+    //for logging
+    enum LOGGING logLevel = TRACE;
+    char *date;
+    char *time;
+    char *loggingLevel;
+    date = (char*)malloc(1 * sizeof(char));
+    time = (char*)malloc(1 * sizeof(char));
+    loggingLevel = (char*)malloc( 1 * sizeof(char));
+    FILE *fptr;
+    fptr = fopen("log.txt","a");
+    /*
+    For making a log
+    getDate(&date);
+    getLoggingTime(&time);
+    getLogLevel(&loggingLevel, logLevel);
+    fprintf (fptr, "%s - %s: %s - log message here\n", date, time, loggingLevel);
+    */
+	
+	
     char command[200]; //command meant to sent to bash to control display
 
 	line1 = (char*)malloc(20 * sizeof(char));
@@ -498,6 +560,7 @@ int main(int argc, char **argv, char **envp)
 	line4 = (char*)malloc(20 * sizeof(char));
 
     bool a = true;
+
 	
 	struct Button button1 = {1, 0, 0, {0, 0, 0, 0, 0}, 0, false};
 	struct Button button2 = {2, 0, 0, {0, 0, 0, 0, 0}, 0, false};
@@ -553,6 +616,7 @@ int main(int argc, char **argv, char **envp)
 	button5.receive = gpio_direction_input(button5.pin);
 	
     enum clockState state = Normal; 
+
     while(1)
     {
         //insert logic for buttons here, based on the logic change the state of the machine
@@ -722,7 +786,7 @@ int main(int argc, char **argv, char **envp)
 
         usleep(200000); //sleep for 0.2 seconds
     }
-
+    fclose(fptr);
     return 0;
 }
 
