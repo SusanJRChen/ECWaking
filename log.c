@@ -154,6 +154,16 @@ int main()
     getLogLevel(&loggingLevel, logLevel);
     fprintf (fptr, "%s - %s: %s - log message here\n", date, time, loggingLevel);
     fclose(fptr);
+    
+    /* 
+    to make a log
+    logLevel = (put LOGGING level here);
+    getDate(&date);
+    getLoggingTime(&time);
+    getLogLevel(&loggingLevel, logLevel);
+    fprintf (fptr, "%s - %s: %s - log message here\n", date, time, loggingLevel);
+    fclose(fptr);
+    */
 
     return 0;
     
