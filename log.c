@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-/*#include<unistd.h>
+#include<unistd.h>
 #include<fcntl.h>
 #include<stdbool.h>
 #include<ugpio/ugpio.h>*/
@@ -151,7 +151,7 @@ int main()
     getDate(&date);
     getLoggingTime(&time);
     getLogLevel(&loggingLevel, logLevel);
-    fprintf (fptr, "%s - %s: %s\n", date, time, loggingLevel);
+    fprintf (fptr, "%s - %s: %s - log message here\n", date, time, loggingLevel);
     fclose(fptr);
 
     return 0;
