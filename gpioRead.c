@@ -545,6 +545,7 @@ int main(int argc, char **argv, char **envp)
     fptr = fopen("log.txt","a");
     /*
     For making a log
+    logLevel = (one of the LOGGING values)
     getDate(&date);
     getLoggingTime(&time);
     getLogLevel(&loggingLevel, logLevel);
