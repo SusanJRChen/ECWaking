@@ -5,7 +5,7 @@
 #include<fcntl.h>
 #include<stdbool.h>
 #include<ugpio/ugpio.h>
-#include<time.h>
+#include <time.h>
 #include<math.h>
 
 struct Button {
@@ -50,6 +50,7 @@ bool changeValues (int prev_vals[], int cur_val){
     
     return true;
 }
+
 int getLoggingTime(char ** line) //function that will return time
 {
     time_t tm;
@@ -261,57 +262,115 @@ char * substring(char * string, int position, int length){
 }
 
 bool getIP(char ** ipaddress){
-    FILE *fp = popen("curl ipinfo.io/ip", "r");
-    
-    fscanf(fp, "%s", *ipaddress);
-    pclose(fp);
-    
-    return true;
+	FILE *fp = popen("curl ipinfo.io/ip", "r");
+
+	fscanf(fp, "%s", *ipaddress);
+	pclose(fp);
+	
+	return true;
 }
 
 bool getLongandLat(char * buff, char ** latitude, char ** longitude){
-    char * result= strstr(buff, "latitude\":");
-    
+    char * result = strstr(buff, "latitude\":");
+	
+	if (result == NULL){
+		return false;
+	}
+	
     int LatitudeIndex = result - buff + 11;
-    result= strstr(buff, "longitude\":");
+    result = strstr(buff, "longitude\":");
+	
+	if (result == NULL){
+		return false;
+	}
+	
     int LongitudeIndex = result - buff + 12;
     int length = LongitudeIndex - LatitudeIndex - 13;
     
-    *longitude = substring(buff, LongitudeIndex, length);
+    *longitude = substring(buff, LongitudeIndex, length);    
     *latitude = substring(buff, LatitudeIndex, length);
+	
+	float a;
+	if (!stringToFloat(*longitude, &a)){
+		return false;
+	}
     
     return true;
 }
 
 bool getWoeid(char * buff, char ** woeid){
-    int woeidIndex = strstr(buff, "woeid\":") - buff + 9;
-    int woeidEndIndex = strstr(buff, "\"}}") - buff + 1;
-    
+	char * result = strstr(buff, "woeid\":");
+    int woeidIndex = result - buff + 9;
+	
+	if (result == NULL){
+		return false;
+	}
+
+	result = strstr(buff, "\"}}");
+	
+	if (result == NULL){
+		return false;
+	}
+	
+    int woeidEndIndex =  result - buff + 1;
     *woeid = substring(buff, woeidIndex, woeidEndIndex - woeidIndex);
+	
+	for(int i; (*woeid)[i] != '\0'; i++){
+		if ((*woeid)[i] > '9' || (*woeid)[i] < '0'){
+			return false;
+		}
+	}
     
     return true;
 }
 
 bool getTemperature(char * buff, char ** high, char ** low){
-    int highIndex = strstr(buff, "high\":\"") - buff + 8;
-    int lowIndex = strstr(buff, "low\":\"") - buff + 7;
-    int textIndex = strstr(buff, "text\":\"") - buff + 8;
-    
-    *high = substring(buff, highIndex, lowIndex - highIndex - 9);
-    *low = substring(buff, lowIndex, textIndex - lowIndex - 10);
-    
-    return true;
+	char * result = strstr(buff, "high\":\"");
+	
+	if (result == NULL){
+		return false;
+	}
+	
+	int highIndex = result - buff + 8;
+	result = strstr(buff, "low\":\"");
+	
+	if (result == NULL){
+		return false;
+	}
+	
+	int lowIndex = result - buff + 7;
+	result = strstr(buff, "text\":\"");
+	
+	if (result == NULL){
+		return false;
+	}
+	
+	int textIndex = result - buff + 8;
+		
+	*high = substring(buff, highIndex, lowIndex - highIndex - 9);
+	*low = substring(buff, lowIndex, textIndex - lowIndex - 10);
+	
+	float a;
+	if (!stringToFloat(*high, &a) || !stringToFloat(*low, &a)){
+		return false;
+	}
+		
+	return true;	
 }
 
 bool getUnits(char * buff, char ** temperatureUnits){
-    int unitIndex = strstr(buff, "temperature\":") - buff + 15;
-    
-    *temperatureUnits = substring(buff, unitIndex, 1);
-    if (*temperatureUnits != "C" && *temperatureUnits != "F"){
-        return false;
-    }
-    
-    return true;
+	char * result = strstr(buff, "temperature\":");
+	int unitIndex = result - buff + 15;
+	
+	if (result == NULL){
+		return false;
+	}
+	
+	*temperatureUnits = substring(buff, unitIndex, 1);
+	if (*temperatureUnits != "C" && *temperatureUnits != "F")
+		return false;
+	
+	return true;
 }
 
 bool getLineWithString(char * filename, char * string, char * buff){
@@ -329,6 +388,7 @@ bool getLineWithString(char * filename, char * string, char * buff){
     
     return false;
 }
+
 int getTime(char ** line) //function that will return time
 {
     time_t tm;
@@ -343,6 +403,7 @@ int getTime(char ** line) //function that will return time
     printf("%s", *line);
     return 1;
 }
+
 int getDate(char ** line) //function that will return date
 {
     char * day;
@@ -426,6 +487,7 @@ int getDate(char ** line) //function that will return date
     printf("%s", *line);
     return 1;
 }
+
 bool getTemperatureInC(float * hightemp, float * lowtemp){
     char * ipaddress = (char *) malloc(20);
     char command[256];
@@ -443,28 +505,47 @@ bool getTemperatureInC(float * hightemp, float * lowtemp){
     if (getLineWithString("content.txt", ".", buff)){
         strcpy(ipaddress, buff);
     }
+	else{
+		return false;
+	}
     
     snprintf(command, sizeof command, "%s%s%s", "curl freegeoip.net/json/", ipaddress, " > content.txt");
     system(command);
     
-    if (getLineWithString("content.txt", "longitude", buff))
+    if (getLineWithString("content.txt", "longitude", buff)){
         getLongandLat(buff, &longitude, &latitude);
+	}
+	else{
+		return false;
+	}
     
     snprintf(command, sizeof command, "%s%s%s%s%s", "curl query.yahooapis.com/v1/public/yql -d q=\"select woeid from geo.places where text=\\\"(", longitude, ", " , latitude, ")\\\"\" -d format=json > content.txt");
     system(command);
     
-    if (getLineWithString("content.txt", "woeid", buff))
+    if (getLineWithString("content.txt", "woeid", buff)){
         getWoeid(buff, &woeid);
+	}
+	else{
+		return false;
+	}
     
     
     snprintf(command, sizeof command, "%s%s%s", "curl query.yahooapis.com/v1/public/yql -d q=\"select * from weather.forecast where woeid=\\\"", woeid, "\\\"\" -d format=json > content.txt");
     system(command);
     
-    if (getLineWithString("content.txt", "high", buff))
+    if (getLineWithString("content.txt", "high", buff)){
         getTemperature(buff, &high, &low);
+	}
+	else{
+		return false;
+	}
     
-    if (getLineWithString("content.txt", "temperature", buff))
+    if (getLineWithString("content.txt", "temperature", buff)){
         getUnits(buff, &temperatureUnits);
+	}
+	else{
+		return false;
+	}
     
     float highfloat = 0;
     float lowfloat = 0;
@@ -994,3 +1075,4 @@ int main(int argc, char **argv, char **envp)
     
     return 0;
 }
+>>>>>>> 91f4fd0f797c19997733b3e60865c4939a0e4b76
