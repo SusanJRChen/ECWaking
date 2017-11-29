@@ -764,6 +764,9 @@ int main(int argc, char **argv, char **envp)
     enum clockState state = Normal;
     while (1)
     {
+        
+         fptr = fopen("log.txt", "a");
+        
         //insert logic for buttons here, based on the logic change the state of the machine
         //check if the time has been reached
         //check if the button has been pressed and change the bool of alarm
@@ -1093,6 +1096,9 @@ int main(int argc, char **argv, char **envp)
             }
             break;
         }
+        
+        fclose(fptr);
+        
     }
 
     // logging
