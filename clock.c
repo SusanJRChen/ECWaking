@@ -7,6 +7,7 @@
 #include <ugpio/ugpio.h>
 #include <time.h>
 #include <math.h>
+#include <python/python.h>
 
 struct Button
 {
@@ -534,20 +535,15 @@ bool getTemperatureInC(float *hightemp, float *lowtemp)
 
     FILE *fptr;
     fptr = fopen("log.txt", "a");
-    bool logging = true;
-    if (fptr == NULL){
-	logging = false;
-    }
-    if (logging){
-    	getDate(&date);
-    	getLoggingTime(&loggingTime);
-    	fprintf(fptr, "%s - %s: TRACE - Public IP: %s\n", date, loggingTime, ipaddress);
-    	fprintf(fptr, "%s - %s: TRACE - Coordinates: (%s, %s)\n", date, loggingTime, latitude, longitude);
-    	fprintf(fptr, "%s - %s: TRACE - woeid: %s\n", date, loggingTime, woeid);
-    	fprintf(fptr, "%s - %s: TRACE - Units were given in: %s\n", date, loggingTime, temperatureUnits);
-    	fprintf(fptr, "%s - %s: TRACE - (in celsius) High: %f , Low: %f\n", date, loggingTime, highfloat, lowfloat);
-    	fprintf(fptr, "%s - %s: TRACE - Average Temperature(C): %f\n", date, loggingTime, averageTemperature);
-    }
+    getDate(&date);
+    getLoggingTime(&loggingTime);
+    fprintf(fptr, "%s - %s: TRACE - Public IP: %s\n", date, loggingTime, ipaddress);
+    fprintf(fptr, "%s - %s: TRACE - Coordinates: (%s, %s)\n", date, loggingTime, latitude, longitude);
+    fprintf(fptr, "%s - %s: TRACE - woeid: %s\n", date, loggingTime, woeid);
+    fprintf(fptr, "%s - %s: TRACE - Units were given in: %s\n", date, loggingTime, temperatureUnits);
+    fprintf(fptr, "%s - %s: TRACE - (in celsius) High: %f , Low: %f\n", date, loggingTime, highfloat, lowfloat);
+    fprintf(fptr, "%s - %s: TRACE - Average Temperature(C): %f\n", date, loggingTime, averageTemperature);
+
     *hightemp = highfloat;
     *lowtemp = lowfloat;
     return true;
@@ -608,17 +604,10 @@ bool update(char *line1, char *line2, char *line3)
 
     FILE *fptr;
     fptr = fopen("log.txt", "a");
-    bool logging = true;
-    if (fptr == NULL){
-	logging = false;
-    }
-	
-    if (logging){
     getDate(&date);
     getLoggingTime(&loggingTime);
-    	fprintf(fptr, "%s - %s: TRACE - Screen Outputted Successfully\n", date, loggingTime);
-    }
-	
+    fprintf(fptr, "%s - %s: TRACE - Screen Outputted Successfully\n", date, loggingTime);
+
     system(command);
     return true;
 }
@@ -682,11 +671,6 @@ int main(int argc, char **argv, char **envp)
 
     FILE *fptr;
     fptr = fopen("log1.txt", "a");
-
-    bool logging = true;
-    if (fptr == NULL){
-	logging = false;
-    }
     
     /*
     to make a log
@@ -699,14 +683,12 @@ int main(int argc, char **argv, char **envp)
     */
 
     // logging
-    if (logging){
-    	logLevel = TRACE;
-    	getDate(&date);
-    	getLoggingTime(&loggingTime);
-    	getLogLevel(&loggingLevel, logLevel);
-    	fprintf(fptr, "%s - %s: %s - Program Initialized\n", date, loggingTime, loggingLevel);
-    }
-	
+    logLevel = TRACE;
+    getDate(&date);
+    getLoggingTime(&loggingTime);
+    getLogLevel(&loggingLevel, logLevel);
+    fprintf(fptr, "%s - %s: %s - Program Initialized\n", date, loggingTime, loggingLevel);
+
     struct Button button1 = {1, 0, 0, {0, 0, 0, 0, 0}, 0, false};
     struct Button button2 = {2, 0, 0, {0, 0, 0, 0, 0}, 0, false};
     struct Button button3 = {3, 0, 0, {0, 0, 0, 0, 0}, 0, false};
@@ -732,26 +714,23 @@ int main(int argc, char **argv, char **envp)
     button5.cur_val = 0;
 
     // logging
-    if (logging){
-    	logLevel = TRACE;
-    	getDate(&date);
-    	getLoggingTime(&loggingTime);
-    	getLogLevel(&loggingLevel, logLevel);
-    	fprintf(fptr, "%s - %s: %s - Buttons Initialized\n", date, loggingTime, loggingLevel);
-    }
-	
+    logLevel = TRACE;
+    getDate(&date);
+    getLoggingTime(&loggingTime);
+    getLogLevel(&loggingLevel, logLevel);
+    fprintf(fptr, "%s - %s: %s - Buttons Initialized\n", date, loggingTime, loggingLevel);
+
     if (button1.request < 0 || button2.request < 0 || button3.request < 0 || button4.request < 0 || button5.request < 0)
     {
         perror("gpio_is_requested");
 
-	// logging
-	if (Logging){
-        	logLevel = FATAL;
-        	getDate(&date);
-        	getLoggingTime(&loggingTime);
-        	getLogLevel(&loggingLevel, logLevel);
-        	fprintf(fptr, "%s - %s: %s - gpio Requested Error\n", date, loggingTime, loggingLevel);
-	}
+        // logging
+        logLevel = FATAL;
+        getDate(&date);
+        getLoggingTime(&loggingTime);
+        getLogLevel(&loggingLevel, logLevel);
+        fprintf(fptr, "%s - %s: %s - gpio Requested Error\n", date, loggingTime, loggingLevel);
+
         return EXIT_FAILURE;
     }
 
@@ -766,13 +745,11 @@ int main(int argc, char **argv, char **envp)
         if (button1.receive < 0 || button2.receive < 0 || button3.receive < 0 || button4.receive < 0 || button5.receive < 0)
         {
             // logging
-	    if (logging){
-            	logLevel = FATAL;
-            	getDate(&date);
-            	getLoggingTime(&loggingTime);
-            	getLogLevel(&loggingLevel, logLevel);
-            	fprintf(fptr, "%s - %s: %s - gpio Requested Error\n", date, loggingTime, loggingLevel);
-	    }
+            logLevel = FATAL;
+            getDate(&date);
+            getLoggingTime(&loggingTime);
+            getLogLevel(&loggingLevel, logLevel);
+            fprintf(fptr, "%s - %s: %s - gpio Requested Error\n", date, loggingTime, loggingLevel);
 
             perror("gpio_request");
             return EXIT_FAILURE;
@@ -790,7 +767,7 @@ int main(int argc, char **argv, char **envp)
     fclose(fptr);
     while (1)
     {
-	fptr = fopen("log.txt", "a");
+		fptr = fopen("log.txt", "a");
         //insert logic for buttons here, based on the logic change the state of the machine
         //check if the time has been reached
         //check if the button has been pressed and change the bool of alarm
@@ -810,20 +787,19 @@ int main(int argc, char **argv, char **envp)
         if (button1.pressed && state != ChangeAlarm)
         {
             // logging
-	    if (logging){
-            	logLevel = DEBUG;
-            	getDate(&date);
-            	getLoggingTime(&loggingTime);
-            	getLogLevel(&loggingLevel, logLevel);
-            	fprintf(fptr, "%s - %s: %s - Button 1 Pressed\n", date, loggingTime, loggingLevel);
+            logLevel = DEBUG;
+            getDate(&date);
+            getLoggingTime(&loggingTime);
+            getLogLevel(&loggingLevel, logLevel);
+            fprintf(fptr, "%s - %s: %s - Button 1 Pressed\n", date, loggingTime, loggingLevel);
 
-            	logLevel = TRACE;
-            	getDate(&date);
-            	getLoggingTime(&loggingTime);
-            	getLogLevel(&loggingLevel, logLevel);
-            	fprintf(fptr, "%s - %s: %s - Change State to ChangeAlarm\n", date, loggingTime, loggingLevel);
-	    }
-		
+            // logging
+            logLevel = TRACE;
+            getDate(&date);
+            getLoggingTime(&loggingTime);
+            getLogLevel(&loggingLevel, logLevel);
+            fprintf(fptr, "%s - %s: %s - Change State to ChangeAlarm\n", date, loggingTime, loggingLevel);
+
             state = ChangeAlarm;
 	    getTime(&line1); 
             getDate(&line2);
@@ -837,13 +813,12 @@ int main(int argc, char **argv, char **envp)
         if (button4.pressed)
         {
             // logging
-	    if (logging){
-            	logLevel = DEBUG;
-            	getDate(&date);
-            	getLoggingTime(&loggingTime);
-            	getLogLevel(&loggingLevel, logLevel);
-            	fprintf(fptr, "%s - %s: %s - Button 4 Pressed\n", date, loggingTime, loggingLevel);
-	    }
+            logLevel = DEBUG;
+            getDate(&date);
+            getLoggingTime(&loggingTime);
+            getLogLevel(&loggingLevel, logLevel);
+            fprintf(fptr, "%s - %s: %s - Button 4 Pressed\n", date, loggingTime, loggingLevel);
+	    
 
             alarm = !alarm;
             button4.pressed = false;
@@ -877,14 +852,12 @@ int main(int argc, char **argv, char **envp)
         if (aMinutes == timeinfo->tm_min && aHours == timeinfo->tm_hour && alarm)
         {
             // logging
-	    if (Logging){
-            	logLevel = TRACE;
-            	getDate(&date);
-            	getLoggingTime(&loggingTime);
-            	getLogLevel(&loggingLevel, logLevel);
-            	fprintf(fptr, "%s - %s: %s - Change State to AlarmON\n", date, loggingTime, loggingLevel);
-	    }
-		
+            logLevel = TRACE;
+            getDate(&date);
+            getLoggingTime(&loggingTime);
+            getLogLevel(&loggingLevel, logLevel);
+            fprintf(fptr, "%s - %s: %s - Change State to AlarmON\n", date, loggingTime, loggingLevel);
+
             state = AlarmON;
         }
         switch (state)
@@ -895,15 +868,12 @@ int main(int argc, char **argv, char **envp)
             if (tMinutes != timeinfo->tm_min)
             {
 		printf("Current Time: %s \n", ctime(&tm));
-		    
                 // logging
-		if (logging){
-	                logLevel = DEBUG;
-        	        getDate(&date);
-                	getLoggingTime(&loggingTime);
-                	getLogLevel(&loggingLevel, logLevel);
-                	fprintf(fptr, "%s - %s: %s - Case Normal\n", date, loggingTime, loggingLevel);
-		}
+                logLevel = DEBUG;
+                getDate(&date);
+                getLoggingTime(&loggingTime);
+                getLogLevel(&loggingLevel, logLevel);
+                fprintf(fptr, "%s - %s: %s - Case Normal\n", date, loggingTime, loggingLevel);
 
                 tMinutes = timeinfo->tm_min;
                 getTime(&line1); 
@@ -929,16 +899,13 @@ int main(int argc, char **argv, char **envp)
 		    {
 			getWeather(&line3);
 			printf("Button 1 Pressed");
-			    
 		        // logging
-			if (logging){
-		        	logLevel = DEBUG;
-		        	getDate(&date);
-		       		getLoggingTime(&loggingTime);
-		        	getLogLevel(&loggingLevel, logLevel);
-		        	fprintf(fptr, "%s - %s: %s - Button 1 Pressed\n", date, loggingTime, loggingLevel);
-			}
-			    
+		        logLevel = DEBUG;
+		        getDate(&date);
+		        getLoggingTime(&loggingTime);
+		        getLogLevel(&loggingLevel, logLevel);
+		        //fprintf(fptr, "%s - %s: %s - Button 1 Pressed\n", date, loggingTime, loggingLevel);
+			
 		        if (modMinutes)
 		        {
 		            state = Normal;
@@ -960,31 +927,25 @@ int main(int argc, char **argv, char **envp)
 		    else if (button2.cur_val)
 		    {
 			printf("Button 2 pressed");
-			    
 		        // logging
-			if (logging){
-		        	logLevel = DEBUG;
-		        	getDate(&date);
-		        	getLoggingTime(&loggingTime);
-		        	getLogLevel(&loggingLevel, logLevel);
-		       		fprintf(fptr, "%s - %s: %s - Button 2 Pressed\n", date, loggingTime, loggingLevel);
-			}
-			    
+		        logLevel = DEBUG;
+		        getDate(&date);
+		        getLoggingTime(&loggingTime);
+		        getLogLevel(&loggingLevel, logLevel);
+		       // fprintf(fptr, "%s - %s: %s - Button 2 Pressed\n", date, loggingTime, loggingLevel);
+
 		        upPressed = true;
 		    }
 		    else if (button3.cur_val)
 		    {
 			printf("Button 3 pressed");
-			    
 		        // logging
-			if (logging){
-		        	logLevel = DEBUG;
-			        getDate(&date);
-			        getLoggingTime(&loggingTime);
-			        getLogLevel(&loggingLevel, logLevel);
-		        	fprintf(fptr, "%s - %s: %s - Button 3 Pressed\n", date, loggingTime, loggingLevel);
-			}
-			    
+		        logLevel = DEBUG;
+		        getDate(&date);
+		        getLoggingTime(&loggingTime);
+		        getLogLevel(&loggingLevel, logLevel);
+		        //fprintf(fptr, "%s - %s: %s - Button 3 Pressed\n", date, loggingTime, loggingLevel);
+
 		        downPressed = true;
 		    }
 		   
@@ -997,15 +958,12 @@ int main(int argc, char **argv, char **envp)
             {
                 if (upPressed) //up button is pressed
                 {
-		    // logging
-		    if (logging){
-	                    logLevel = INFO;
-        	            getDate(&date);
-                	    getLoggingTime(&loggingTime);
-                    	    getLogLevel(&loggingLevel, logLevel);
-                    	    fprintf(fptr, "%s - %s: %s - Up Button Pressed\n", date, loggingTime, loggingLevel);
-		    }
-			
+                    logLevel = INFO;
+                    getDate(&date);
+                    getLoggingTime(&loggingTime);
+                    getLogLevel(&loggingLevel, logLevel);
+                    fprintf(fptr, "%s - %s: %s - Up Button Pressed\n", date, loggingTime, loggingLevel);
+
                     aHours += 1;
                     if (aHours > 23)
                         aHours = 0;
@@ -1018,14 +976,11 @@ int main(int argc, char **argv, char **envp)
                 }
                 if (downPressed) //down button is pressed
                 {
-		    // logging
-		    if (logging){
-	                    logLevel = INFO;
-        	            getDate(&date);
-                	    getLoggingTime(&loggingTime);
-                    	    getLogLevel(&loggingLevel, logLevel);
-                    	    fprintf(fptr, "%s - %s: %s - Down Button Pressed\n", date, loggingTime, loggingLevel);
-		    }
+                    logLevel = INFO;
+                    getDate(&date);
+                    getLoggingTime(&loggingTime);
+                    getLogLevel(&loggingLevel, logLevel);
+                    fprintf(fptr, "%s - %s: %s - Down Button Pressed\n", date, loggingTime, loggingLevel);
 
                     aHours -= 1;
                     if (aHours < 0)
@@ -1044,14 +999,12 @@ int main(int argc, char **argv, char **envp)
                 {
 
                     // logging
-		    if (logging){
-                    	logLevel = INFO;
-                    	getDate(&date);
-                    	getLoggingTime(&loggingTime);
-                    	getLogLevel(&loggingLevel, logLevel);
-                    	fprintf(fptr, "%s - %s: %s - Up Button Pressed\n", date, loggingTime, loggingLevel);
-		    }
-			
+                    logLevel = INFO;
+                    getDate(&date);
+                    getLoggingTime(&loggingTime);
+                    getLogLevel(&loggingLevel, logLevel);
+                    fprintf(fptr, "%s - %s: %s - Up Button Pressed\n", date, loggingTime, loggingLevel);
+
                     aMinutes += 1;
                     if (aMinutes > 59)
                         aMinutes = 0;
@@ -1065,13 +1018,11 @@ int main(int argc, char **argv, char **envp)
                 {
 		    	
                     // logging
-		    if (logging){
-                    	logLevel = INFO;
-                    	getDate(&date);
-                    	getLoggingTime(&loggingTime);
-                    	getLogLevel(&loggingLevel, logLevel);
-                    	fprintf(fptr, "%s - %s: %s - Down Button Pressed\n", date, loggingTime, loggingLevel);
-		    }
+                    logLevel = INFO;
+                    getDate(&date);
+                    getLoggingTime(&loggingTime);
+                    getLogLevel(&loggingLevel, logLevel);
+                    fprintf(fptr, "%s - %s: %s - Down Button Pressed\n", date, loggingTime, loggingLevel);
 
                     aMinutes -= 1;
                     if (aMinutes < 0)
@@ -1088,13 +1039,12 @@ int main(int argc, char **argv, char **envp)
             system("fast-gpio set 11 1");
 
             // logging
-	    if (Logging){
-	        logLevel = TRACE;
-                getDate(&date);
-            	getLoggingTime(&loggingTime);
-            	getLogLevel(&loggingLevel, logLevel);
-            	fprintf(fptr, "%s - %s: %s - Case AlarmON\n", date, loggingTime, loggingLevel);
-	    }
+            logLevel = TRACE;
+            getDate(&date);
+            getLoggingTime(&loggingTime);
+            getLogLevel(&loggingLevel, logLevel);
+            fprintf(fptr, "%s - %s: %s - Case AlarmON\n", date, loggingTime, loggingLevel);
+
             int tempHours = aHours;
             int tempMin = aMinutes;
             getTime(&line1);
@@ -1109,13 +1059,12 @@ int main(int argc, char **argv, char **envp)
                 if (button4.pressed)
                 {
                     // logging
-		    if (logging){
-	                    logLevel = DEBUG;
-        	            getDate(&date);
-                	    getLoggingTime(&loggingTime);
-                  	    getLogLevel(&loggingLevel, logLevel);
-                    	    fprintf(fptr, "%s - %s: %s - Button 4 Pressed\n", date, loggingTime, loggingLevel);
-		    }
+                    logLevel = DEBUG;
+                    getDate(&date);
+                    getLoggingTime(&loggingTime);
+                    getLogLevel(&loggingLevel, logLevel);
+                    fprintf(fptr, "%s - %s: %s - Button 4 Pressed\n", date, loggingTime, loggingLevel);
+
 
 		    system("fast-gpio set 11 0");
                     alarm = !alarm;
@@ -1124,14 +1073,12 @@ int main(int argc, char **argv, char **envp)
                 else if (button5.pressed)
                 {
                     // logging
-		    if (logging){
-	                    logLevel = DEBUG;
-        	            getDate(&date);
-                	    getLoggingTime(&loggingTime);
-                   	    getLogLevel(&loggingLevel, logLevel);
-                    	    fprintf(fptr, "%s - %s: %s - Button 5 Pressed\n", date, loggingTime, loggingLevel);
-		    }
-			
+                    logLevel = DEBUG;
+                    getDate(&date);
+                    getLoggingTime(&loggingTime);
+                    getLogLevel(&loggingLevel, logLevel);
+                    fprintf(fptr, "%s - %s: %s - Button 5 Pressed\n", date, loggingTime, loggingLevel);
+		    
 		    system("fast-gpio set 11 0");
                     snooze = true;
                     
@@ -1148,14 +1095,12 @@ int main(int argc, char **argv, char **envp)
                 //stop the logic high
 
                 // logging
-		if (logging){
-                	logLevel = TRACE;
-                	getDate(&date);
-                	getLoggingTime(&loggingTime);
-                	getLogLevel(&loggingLevel, logLevel);
-                	fprintf(fptr, "%s - %s: %s - Alarm Snoozed\n", date, loggingTime, loggingLevel);
-		}
-		    
+                logLevel = TRACE;
+                getDate(&date);
+                getLoggingTime(&loggingTime);
+                getLogLevel(&loggingLevel, logLevel);
+                fprintf(fptr, "%s - %s: %s - Alarm Snoozed\n", date, loggingTime, loggingLevel);
+
                 aMinutes = timeinfo->tm_min + 5;
                 if (aMinutes > 59)
                 {
@@ -1175,27 +1120,22 @@ int main(int argc, char **argv, char **envp)
                 state = Normal;
                 system("fast-gpio set 11 0");
 
-		// logging
-		if (logging){
-	                logLevel = TRACE;
-       	        	getDate(&date);
-        	        getLoggingTime(&loggingTime);
-              	  	getLogLevel(&loggingLevel, logLevel);
-                	fprintf(fptr, "%s - %s: %s - Alarm Sound Off\n", date, loggingTime, loggingLevel);
-		}
+                logLevel = TRACE;
+                getDate(&date);
+                getLoggingTime(&loggingTime);
+                getLogLevel(&loggingLevel, logLevel);
+                fprintf(fptr, "%s - %s: %s - Alarm Sound Off\n", date, loggingTime, loggingLevel);
             }
 
             if (alarm) //alarm off is pressed
             {
                 // logging
-		if (logging){
-	                logLevel = DEBUG;
-        	        getDate(&date);
-                	getLoggingTime(&loggingTime);
-                	getLogLevel(&loggingLevel, logLevel);
-                	fprintf(fptr, "%s - %s: %s - Alarm Truned\n", date, loggingTime, loggingLevel);
-		}
-		    
+                logLevel = DEBUG;
+                getDate(&date);
+                getLoggingTime(&loggingTime);
+                getLogLevel(&loggingLevel, logLevel);
+                fprintf(fptr, "%s - %s: %s - Alarm Truned\n", date, loggingTime, loggingLevel);
+		
 		tMinutes = timeinfo->tm_min;
                 getTime(&line1); 
                 getDate(&line2);
@@ -1219,15 +1159,13 @@ int main(int argc, char **argv, char **envp)
     }
 
     // logging
-    if (logging){
-	    logLevel = TRACE;
-   	 getDate(&date);
-    	getLoggingTime(&loggingTime);
-    	getLogLevel(&loggingLevel, logLevel);
-    	fprintf(fptr, "%s - %s: %s - Program Closed\n", date, loggingTime, loggingLevel);
-    	fclose(fptr);
-    }
-	
+    logLevel = TRACE;
+    getDate(&date);
+    getLoggingTime(&loggingTime);
+    getLogLevel(&loggingLevel, logLevel);
+    fprintf(fptr, "%s - %s: %s - Program Closed\n", date, loggingTime, loggingLevel);
+    fclose(fptr);
+
     return 0;
 }
 
