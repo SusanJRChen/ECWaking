@@ -7,7 +7,7 @@
 #include <ugpio/ugpio.h>
 #include <time.h>
 #include <math.h>
-#include <python/python.h>
+#include <python2.7/Python.h>
 
 struct Button
 {
