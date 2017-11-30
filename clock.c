@@ -7,8 +7,7 @@
 #include <ugpio/ugpio.h>
 #include <time.h>
 #include <math.h>
-#include <python2.7/Python.h>
-
+#include<python2.7/Python.h>
 struct Button
 {
     int pin;
@@ -575,10 +574,16 @@ int getAlarm(bool alarm, int hours, int minutes, char **line) //function that wi
 
 bool update(char *line1, char *line2, char *line3)
 {
-    char command[200]; //command meant to sent to bash to control display
+    //char command[200]; //command meant to sent to bash to control display
     //combine all the lines to output and send it out
-    snprintf(command, 200, "python /FireOnion_I2C_LCD/src/lcd.py -a 0x27 --line1=\"%s\" --line2=\"%s\" --line3=\"%s\" \n", line1, line2, line3);
-    /*char * argv[8];
+    char line4[22];
+    char line5[22];
+    char line6[22];
+    snprintf(line4, 22, "\"%s\"", line1);	
+    snprintf(line5, 22, "\"%s\"", line2);	
+    snprintf(line6, 22, "\"%s\"", line3);
+    //snprintf(command, 200, "python /FireOnion_I2C_LCD/src/lcd.py -a 0x27 --line1=\"%s\" --line2=\"%s\" --line3=\"%s\" \n", line1, line2, line3);
+    char * argv[8];
     argv[0] = "-a";
     argv[1] = "0x27";
     argv[2] =  "--line1=";
@@ -593,7 +598,7 @@ bool update(char *line1, char *line2, char *line3)
     FILE lcdFile = fopen("/FireOnion_I2C_LCD/src/lcd.py", "r");
     PyRun_SimpleFile(file, "lcd.py");
     Py_Finalize();
-    fclose(lcdFile);*/
+    fclose(lcdFile);
 
 
     // logging
@@ -608,7 +613,7 @@ bool update(char *line1, char *line2, char *line3)
     getLoggingTime(&loggingTime);
     fprintf(fptr, "%s - %s: TRACE - Screen Outputted Successfully\n", date, loggingTime);
 
-    system(command);
+    //system(command);
     return true;
 }
 
@@ -639,8 +644,8 @@ int main(int argc, char **argv, char **envp)
     bool upPressed = false;
     bool downPressed = false;
     bool snooze = false;
-    int aMinutes = 05;
-    int aHours = 23;
+    int aMinutes = 07;
+    int aHours = 11;
     int tMinutes = -1;
     char *line1;
     char *line2; //line 2 will control lines 2 and 4 hence 40 lines
@@ -670,8 +675,12 @@ int main(int argc, char **argv, char **envp)
     loggingLevel = (char *)malloc(1 * sizeof(char));
 
     FILE *fptr;
-    fptr = fopen("log1.txt", "a");
-    
+    fptr = fopen("clockLog.txt", "a");
+    if(fptr == NULL)
+    {
+    	printf("FATAL ERROR NO LOG FILE");
+    	return 0;
+    } 
     /*
     to make a log
     logLevel = (put LOGGING level here);
@@ -764,27 +773,26 @@ int main(int argc, char **argv, char **envp)
 
 
     enum clockState state = Normal;
-    fclose(fptr);
+
     while (1)
     {
-		fptr = fopen("log.txt", "a");
         //insert logic for buttons here, based on the logic change the state of the machine
         //check if the time has been reached
         //check if the button has been pressed and change the bool of alarm
 
         button1.cur_val = gpio_get_value(button1.pin);
-        button2.cur_val = gpio_get_value(button2.pin);
-        button3.cur_val = gpio_get_value(button3.pin);
+       // button2.cur_val = gpio_get_value(button2.pin);
+        //button3.cur_val = gpio_get_value(button3.pin);
         button4.cur_val = gpio_get_value(button4.pin);
-        button5.cur_val = gpio_get_value(button5.pin);
+        //button5.cur_val = gpio_get_value(button5.pin);
 
-        button1.pressed = isPressed(button1.prev_vals, button1.cur_val);
-        button2.pressed = isPressed(button2.prev_vals, button2.cur_val);
-        button3.pressed = isPressed(button3.prev_vals, button3.cur_val);
-        button4.pressed = isPressed(button4.prev_vals, button4.cur_val);
-        button5.pressed = isPressed(button5.prev_vals, button5.cur_val);
+        //button1.pressed = isPressed(button1.prev_vals, button1.cur_val);
+        //button2.pressed = isPressed(button2.prev_vals, button2.cur_val);
+        //button3.pressed = isPressed(button3.prev_vals, button3.cur_val);
+        //button4.pressed = isPressed(button4.prev_vals, button4.cur_val);
+        //button5.pressed = isPressed(button5.prev_vals, button5.cur_val);
 
-        if (button1.pressed && state != ChangeAlarm)
+        if (button1.cur_val && state != ChangeAlarm)
         {
             // logging
             logLevel = DEBUG;
@@ -810,7 +818,7 @@ int main(int argc, char **argv, char **envp)
 
             update(line1, line5, line3);
         }
-        if (button4.pressed)
+        if (button4.cur_val)
         {
             // logging
             logLevel = DEBUG;
@@ -821,7 +829,7 @@ int main(int argc, char **argv, char **envp)
 	    
 
             alarm = !alarm;
-            button4.pressed = false;
+  
 	    getTime(&line1); 
             getDate(&line2);
 	    getWeather(&line3);
@@ -831,7 +839,7 @@ int main(int argc, char **argv, char **envp)
             update(line1, line5, line3);
         }
 
-        a = changeValues(button1.prev_vals, button1.cur_val);
+        /*a = changeValues(button1.prev_vals, button1.cur_val);
         a = changeValues(button2.prev_vals, button2.cur_val);
         a = changeValues(button3.prev_vals, button3.cur_val);
         a = changeValues(button4.prev_vals, button4.cur_val);
@@ -841,9 +849,10 @@ int main(int argc, char **argv, char **envp)
         button2.pressed = false;
         button3.pressed = false;
         button4.pressed = false;
-        button5.pressed = false;
+        button5.pressed = false;*/
 
         tm = time(NULL);
+
         
 
         time(&my_time);
@@ -904,7 +913,7 @@ int main(int argc, char **argv, char **envp)
 		        getDate(&date);
 		        getLoggingTime(&loggingTime);
 		        getLogLevel(&loggingLevel, logLevel);
-		        //fprintf(fptr, "%s - %s: %s - Button 1 Pressed\n", date, loggingTime, loggingLevel);
+		        fprintf(fptr, "%s - %s: %s - Button 1 Pressed\n", date, loggingTime, loggingLevel);
 			
 		        if (modMinutes)
 		        {
@@ -950,19 +959,14 @@ int main(int argc, char **argv, char **envp)
 		    }
 		   
 		}
-		button1.pressed = false;
+		/*button1.pressed = false;
 		button2.pressed = false;
-		button3.pressed = false;
+		button3.pressed = false;*/
 
             if (!modMinutes) //changing the hours
             {
                 if (upPressed) //up button is pressed
-                {
-                    logLevel = INFO;
-                    getDate(&date);
-                    getLoggingTime(&loggingTime);
-                    getLogLevel(&loggingLevel, logLevel);
-                    fprintf(fptr, "%s - %s: %s - Up Button Pressed\n", date, loggingTime, loggingLevel);
+		{
 
                     aHours += 1;
                     if (aHours > 23)
@@ -976,11 +980,6 @@ int main(int argc, char **argv, char **envp)
                 }
                 if (downPressed) //down button is pressed
                 {
-                    logLevel = INFO;
-                    getDate(&date);
-                    getLoggingTime(&loggingTime);
-                    getLogLevel(&loggingLevel, logLevel);
-                    fprintf(fptr, "%s - %s: %s - Down Button Pressed\n", date, loggingTime, loggingLevel);
 
                     aHours -= 1;
                     if (aHours < 0)
@@ -998,13 +997,6 @@ int main(int argc, char **argv, char **envp)
                 if (upPressed) //up button is pressed
                 {
 
-                    // logging
-                    logLevel = INFO;
-                    getDate(&date);
-                    getLoggingTime(&loggingTime);
-                    getLogLevel(&loggingLevel, logLevel);
-                    fprintf(fptr, "%s - %s: %s - Up Button Pressed\n", date, loggingTime, loggingLevel);
-
                     aMinutes += 1;
                     if (aMinutes > 59)
                         aMinutes = 0;
@@ -1017,13 +1009,6 @@ int main(int argc, char **argv, char **envp)
                 if (downPressed) //down button is pressed
                 {
 		    	
-                    // logging
-                    logLevel = INFO;
-                    getDate(&date);
-                    getLoggingTime(&loggingTime);
-                    getLogLevel(&loggingLevel, logLevel);
-                    fprintf(fptr, "%s - %s: %s - Down Button Pressed\n", date, loggingTime, loggingLevel);
-
                     aMinutes -= 1;
                     if (aMinutes < 0)
                         aMinutes = 59;
@@ -1050,13 +1035,12 @@ int main(int argc, char **argv, char **envp)
             getTime(&line1);
 
             //This will force it to wait until it receives a signal from the gpio
-            while (!snooze && !alarm)
+            while (!snooze && alarm)
             {  	
         	button4.cur_val = gpio_get_value(button4.pin);
         	button5.cur_val = gpio_get_value(button5.pin);
-        	button4.pressed = isPressed(button4.prev_vals, button4.cur_val);
-        	button5.pressed = isPressed(button5.prev_vals, button5.cur_val);
-                if (button4.pressed)
+
+                if (button4.cur_val)
                 {
                     // logging
                     logLevel = DEBUG;
@@ -1067,10 +1051,10 @@ int main(int argc, char **argv, char **envp)
 
 
 		    system("fast-gpio set 11 0");
-                    alarm = !alarm;
+                    alarm = false;
                   
                 }
-                else if (button5.pressed)
+                else if (button5.cur_val)
                 {
                     // logging
                     logLevel = DEBUG;
@@ -1083,12 +1067,9 @@ int main(int argc, char **argv, char **envp)
                     snooze = true;
                     
                 }
-		usleep(200);
-		a = changeValues(button4.prev_vals, button4.cur_val);
-       		a = changeValues(button5.prev_vals, button5.cur_val);
+
             }
-	    button4.pressed = false;
-	    button5.pressed = false;	
+
 		
             if (snooze) //the snooze button is pressed
             {
@@ -1101,7 +1082,10 @@ int main(int argc, char **argv, char **envp)
                 getLogLevel(&loggingLevel, logLevel);
                 fprintf(fptr, "%s - %s: %s - Alarm Snoozed\n", date, loggingTime, loggingLevel);
 
-                aMinutes = timeinfo->tm_min + 5;
+        	tm = time(NULL);
+        	time(&my_time);
+        	timeinfo = localtime(&my_time);
+                aMinutes = (timeinfo->tm_min + 5);
                 if (aMinutes > 59)
                 {
                     aMinutes = aMinutes % 60;
@@ -1127,15 +1111,18 @@ int main(int argc, char **argv, char **envp)
                 fprintf(fptr, "%s - %s: %s - Alarm Sound Off\n", date, loggingTime, loggingLevel);
             }
 
-            if (alarm) //alarm off is pressed
+            else if (!alarm) //alarm off is pressed
             {
                 // logging
                 logLevel = DEBUG;
                 getDate(&date);
                 getLoggingTime(&loggingTime);
                 getLogLevel(&loggingLevel, logLevel);
-                fprintf(fptr, "%s - %s: %s - Alarm Truned\n", date, loggingTime, loggingLevel);
-		
+                fprintf(fptr, "%s - %s: %s - Alarm Turned\n", date, loggingTime, loggingLevel);
+
+                aHours = tempHours; //reset the alarm to its original value;
+                aMinutes = tempMin;	
+	
 		tMinutes = timeinfo->tm_min;
                 getTime(&line1); 
                 getDate(&line2);
@@ -1144,18 +1131,14 @@ int main(int argc, char **argv, char **envp)
                 snprintf(line5, 40, "%s%s", line2, line4);
                 update(line1, line5, line3);
 
-                aHours = tempHours; //reset the alarm to its original value;
-                aMinutes = tempMin;
 
-                alarm = false; //This will actually turn off the alarm
-                //stop the logic high
 
                 state = Normal;
                 system("fast-gpio set 11 0");
             }
             break;
         }
-	fclose(fptr);
+
     }
 
     // logging
@@ -1168,4 +1151,3 @@ int main(int argc, char **argv, char **envp)
 
     return 0;
 }
-
