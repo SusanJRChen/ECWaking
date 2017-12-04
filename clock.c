@@ -7,7 +7,7 @@
 #include <ugpio/ugpio.h>
 #include <time.h>
 #include <math.h>
-#include<python2.7/Python.h>
+//#include<python2.7/Python.h>
 struct Button
 {
     int pin;
@@ -406,25 +406,25 @@ int getDate(char **line) //function that will return date
     switch (timeinfo->tm_wday) //assign the necessary day to the string
     {
     case 0:
-        snprintf(day, 5, "%s", "Sun"); //day = "Sunday";
+        snprintf(day, 5, "%s", "Sun "); //day = "Sunday";
         break;
     case 1:
-        snprintf(day, 5, "%s", "Mon"); //day = "Monday";
+        snprintf(day, 5, "%s", "Mon "); //day = "Monday";
         break;
     case 2:
         snprintf(day, 5, "%s", "Tues"); //day = "Tuesday";
         break;
     case 3:
-        snprintf(day, 5, "%s", "Wed"); //day = "Wednesday";
+        snprintf(day, 5, "%s", "Wed "); //day = "Wednesday";
         break;
     case 4:
-        snprintf(day, 5, "%s", "Thurs"); //day = "Thursday";
+        snprintf(day, 5, "%s", "Thur"); //day = "Thursday";
         break;
     case 5:
-        snprintf(day, 5, "%s", "Fri"); //day = "Friday";
+        snprintf(day, 5, "%s", "Fri "); //day = "Friday";
         break;
     case 6:
-        snprintf(day, 5, "%s", "Sat"); //day = "Saturday";
+        snprintf(day, 5, "%s", "Sat "); //day = "Saturday";
         break;
     }
 
@@ -467,7 +467,7 @@ int getDate(char **line) //function that will return date
         snprintf(month, 4, "%s", "Dec");
         break;
     }
-    snprintf(*line, 20, "%s %s %d %d    ", day, month, timeinfo->tm_mday, timeinfo->tm_year + 1900);
+    snprintf(*line, 20, "%s %s %02d %d    ", day, month, timeinfo->tm_mday, timeinfo->tm_year + 1900);
 
     return 1;
 }
@@ -490,28 +490,37 @@ bool getTemperatureInC(float *hightemp, float *lowtemp)
     {
         strcpy(ipaddress, buff);
     }
+    else
+	return false;	
 
     snprintf(command, sizeof command, "%s%s%s", "curl freegeoip.net/json/", ipaddress, " > content.txt");
     system(command);
 
     if (getLineWithString("content.txt", "longitude", buff))
         getLongandLat(buff, &longitude, &latitude);
+    else 
+	return false;	
 
     snprintf(command, sizeof command, "%s%s%s%s%s", "curl query.yahooapis.com/v1/public/yql -d q=\"select woeid from geo.places where text=\\\"(", longitude, ", ", latitude, ")\\\"\" -d format=json > content.txt");
     system(command);
 
     if (getLineWithString("content.txt", "woeid", buff))
-        getWoeid(buff, &woeid);
+        getWoeid(buff, &woeid);  
+
+    else 
+	return false;	
 
     snprintf(command, sizeof command, "%s%s%s", "curl query.yahooapis.com/v1/public/yql -d q=\"select * from weather.forecast where woeid=\\\"", woeid, "\\\"\" -d format=json > content.txt");
     system(command);
 
     if (getLineWithString("content.txt", "high", buff))
         getTemperature(buff, &high, &low);
-
+    else
+	return false;
     if (getLineWithString("content.txt", "temperature", buff))
         getUnits(buff, &temperatureUnits);
-
+    else 
+	return false;
     float highfloat = 0;
     float lowfloat = 0;
 
@@ -562,7 +571,7 @@ int getAlarm(bool alarm, int hours, int minutes, char **line) //function that wi
 {
     if (!alarm) //if there is no alarm
     {
-        snprintf(*line, 20, "%s", " Have a great day!");
+        snprintf(*line, 20, " %s", "Have a great day!");
     }
     else
     {
@@ -574,7 +583,7 @@ int getAlarm(bool alarm, int hours, int minutes, char **line) //function that wi
 
 bool update(char *line1, char *line2, char *line3)
 {
-    //char command[200]; //command meant to sent to bash to control display
+    char command[200]; //command meant to sent to bash to control display
     //combine all the lines to output and send it out
     char line4[22];
     char line5[22];
@@ -582,8 +591,8 @@ bool update(char *line1, char *line2, char *line3)
     snprintf(line4, 22, "\"%s\"", line1);	
     snprintf(line5, 22, "\"%s\"", line2);	
     snprintf(line6, 22, "\"%s\"", line3);
-    //snprintf(command, 200, "python /FireOnion_I2C_LCD/src/lcd.py -a 0x27 --line1=\"%s\" --line2=\"%s\" --line3=\"%s\" \n", line1, line2, line3);
-    char * argv[8];
+    snprintf(command, 200, "python /FireOnion_I2C_LCD/src/lcd.py -a 0x27 --line1=\"%s\" --line2=\"%s\" --line3=\"%s\" \n", line1, line2, line3);
+    /*char * argv[8];
     argv[0] = "-a";
     argv[1] = "0x27";
     argv[2] =  "--line1=";
@@ -595,10 +604,11 @@ bool update(char *line1, char *line2, char *line3)
     Py_SetProgramName("lcd.py");
     Py_Initialize();
     PySys_SetArgv(8, argv);
-    FILE lcdFile = fopen("/FireOnion_I2C_LCD/src/lcd.py", "r");
-    PyRun_SimpleFile(file, "lcd.py");
+    FILE *lcdFile;
+    lcdFile=fopen("/FireOnion_I2C_LCD/src/lcd.py", "r");
+    PyRun_SimpleFile(lcdFile, "lcd.py");
     Py_Finalize();
-    fclose(lcdFile);
+    fclose(lcdFile);*/
 
 
     // logging
@@ -613,7 +623,7 @@ bool update(char *line1, char *line2, char *line3)
     getLoggingTime(&loggingTime);
     fprintf(fptr, "%s - %s: TRACE - Screen Outputted Successfully\n", date, loggingTime);
 
-    //system(command);
+    system(command);
     return true;
 }
 
@@ -771,11 +781,29 @@ int main(int argc, char **argv, char **envp)
     button4.receive = gpio_direction_input(button4.pin);
     button5.receive = gpio_direction_input(button5.pin);
 
-
+    
     enum clockState state = Normal;
+	//The lines below are purely for demonstration purposes
+	tm = time(NULL);
 
+        time(&my_time);
+        timeinfo = localtime(&my_time);
+	aHours = (timeinfo->tm_hour+1);
+	aMinutes = (timeinfo->tm_min + 5);
+	if(aMinutes > 59)
+	{
+		aMinutes %= 60;
+		aHours++;
+	}
+	if(aHours > 23)
+		aHours %= 24;
+  	
     while (1)
     {
+	tm = time(NULL);
+
+        time(&my_time);
+        timeinfo = localtime(&my_time);
         //insert logic for buttons here, based on the logic change the state of the machine
         //check if the time has been reached
         //check if the button has been pressed and change the bool of alarm
@@ -851,14 +879,9 @@ int main(int argc, char **argv, char **envp)
         button4.pressed = false;
         button5.pressed = false;*/
 
-        tm = time(NULL);
 
-        
 
-        time(&my_time);
-        timeinfo = localtime(&my_time);
-
-        if (aMinutes == timeinfo->tm_min && aHours == timeinfo->tm_hour && alarm)
+        if (aMinutes == timeinfo->tm_min && aHours == timeinfo->tm_hour && alarm && state != ChangeAlarm)
         {
             // logging
             logLevel = TRACE;
@@ -917,6 +940,10 @@ int main(int argc, char **argv, char **envp)
 			
 		        if (modMinutes)
 		        {
+			    getDate(&date);
+		            getLoggingTime(&loggingTime);
+		            getLogLevel(&loggingLevel, logLevel);
+		            fprintf(fptr, "%s - %s: %s - state changed to normal \n", date, loggingTime, loggingLevel);
 		            state = Normal;
 		            modMinutes = false;
                     	    
@@ -925,6 +952,7 @@ int main(int argc, char **argv, char **envp)
 		            getAlarm(alarm, aHours, aMinutes, &line4);
 		            snprintf(line5, 40, "%s%s", line2, line4);
 		            update(line1, line5, line3);	
+			    break;
 		        }
 		        else
 		        {
